@@ -1,0 +1,129 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - link "차근차근 나눗셈 홈" [ref=e4] [cursor=pointer]:
+        - /url: "#student"
+        - img [ref=e6]
+        - generic [ref=e10]:
+          - strong [ref=e11]: 차근차근
+          - generic [ref=e12]: 나눗셈 연습실
+      - navigation "주요 메뉴" [ref=e13]:
+        - button "학생 풀이" [ref=e14] [cursor=pointer]
+        - button "교사 대시보드" [active] [ref=e15] [cursor=pointer]
+      - generic [ref=e17]: 나
+    - main [ref=e145]:
+      - generic [ref=e147]:
+        - paragraph [ref=e148]: TEACHER VIEW
+        - heading "필요한 순간을 함께 살펴봐요." [level=1] [ref=e150]:
+          - text: 필요한 순간을
+          - text: 함께 살펴봐요.
+        - paragraph [ref=e151]: 정답보다 풀이의 과정과 도움의 순간을 확인합니다.
+      - region "수업 요약" [ref=e152]:
+        - article [ref=e153]:
+          - text: 풀이를 시작한 학생
+          - generic [ref=e154]:
+            - strong [ref=e155]: "3"
+            - generic [ref=e156]: 명
+          - generic [ref=e157]: 오늘 연습에 참여
+          - generic [ref=e158]: ↗
+        - article [ref=e159]:
+          - text: 도움 요청
+          - generic [ref=e160]:
+            - strong [ref=e161]: "6"
+            - generic [ref=e162]: 회
+          - generic [ref=e163]: 학생이 힌트 도구를 연 횟수
+          - generic [ref=e164]: "?"
+        - article [ref=e165]:
+          - text: 도움 뒤 해결
+          - generic [ref=e166]:
+            - strong [ref=e167]: "2"
+            - generic [ref=e168]: 회
+          - generic [ref=e169]: 스스로 이어서 푼 단계
+          - generic [ref=e170]: ✓
+        - article [ref=e171]:
+          - text: 평균 시도
+          - generic [ref=e172]:
+            - strong [ref=e173]: "5.3"
+            - generic [ref=e174]: 회
+          - generic [ref=e175]: 단계별 답 입력 기준
+          - generic [ref=e176]: ↻
+      - generic [ref=e177]:
+        - article [ref=e178]:
+          - generic [ref=e179]:
+            - generic [ref=e180]:
+              - text: CLASS PULSE
+              - heading "유형별 풀이 현황" [level=2] [ref=e181]
+            - generic [ref=e182]: 실시간
+          - generic "화면 예시 데이터로 만든 유형별 풀이 현황" [ref=e184]:
+            - generic [ref=e185]:
+              - generic [ref=e186]: 받아내림 없는
+              - generic "완료 2, 진행 중 0, 시작 전 1" [ref=e187]
+              - generic [ref=e190]: 2/3
+            - generic [ref=e191]:
+              - generic [ref=e192]: 받아내림 있는
+              - generic "완료 1, 진행 중 0, 시작 전 2" [ref=e193]
+              - generic [ref=e196]: 1/3
+            - generic [ref=e197]:
+              - generic [ref=e198]: 십의 자리 몫이 0인
+              - generic "완료 0, 진행 중 0, 시작 전 3" [ref=e199]
+              - generic [ref=e201]: 0/3
+          - generic [ref=e202]:
+            - generic [ref=e203]: 완료
+            - generic [ref=e205]: 진행 중
+            - generic [ref=e207]: 아직 시작 전
+        - article [ref=e209]:
+          - generic [ref=e210]:
+            - generic [ref=e211]:
+              - text: HELP TOOLS
+              - heading "도움 도구 사용" [level=2] [ref=e212]
+            - img [ref=e214]
+          - generic [ref=e216]:
+            - generic [ref=e217]:
+              - generic [ref=e218]: 가리기
+              - generic [ref=e221]: "1"
+            - generic [ref=e222]:
+              - generic [ref=e223]: 곱셈구구
+              - generic [ref=e226]: "2"
+            - generic [ref=e227]:
+              - generic [ref=e228]: 수모형
+              - generic [ref=e231]: "3"
+          - paragraph [ref=e232]: 사용 횟수는 정답을 대신하지 않고, 어떤 도움이 필요했는지 보여줘요.
+      - generic [ref=e233]:
+        - generic [ref=e235]:
+          - text: STUDENT NOTES
+          - heading "학생별 풀이 기록" [level=2] [ref=e236]
+        - table [ref=e238]:
+          - rowgroup [ref=e239]:
+            - row "학생 완료 유형 도움 도구 시도 현재 상태" [ref=e240]:
+              - columnheader "학생" [ref=e241]
+              - columnheader "완료 유형" [ref=e242]
+              - columnheader "도움 도구" [ref=e243]
+              - columnheader "시도" [ref=e244]
+              - columnheader "현재 상태" [ref=e245]
+          - rowgroup [ref=e246]:
+            - row "예시 01 받아내림 없는 가리기 4회 도움 후 해결" [ref=e247]:
+              - cell "예시 01" [ref=e248]
+              - cell "받아내림 없는" [ref=e249]
+              - cell "가리기" [ref=e250]
+              - cell "4회" [ref=e251]
+              - cell "도움 후 해결" [ref=e252]:
+                - generic [ref=e253]: 도움 후 해결
+            - row "예시 02 받아내림 없는 · 받아내림 있는 곱셈구구 · 수모형 9회 도움 후 해결" [ref=e254]:
+              - cell "예시 02" [ref=e255]
+              - cell "받아내림 없는 · 받아내림 있는" [ref=e256]
+              - cell "곱셈구구 · 수모형" [ref=e257]
+              - cell "9회" [ref=e258]
+              - cell "도움 후 해결" [ref=e259]:
+                - generic [ref=e260]: 도움 후 해결
+            - row "예시 03 아직 없음 수모형 3회 도움 필요" [ref=e261]:
+              - cell "예시 03" [ref=e262]
+              - cell "아직 없음" [ref=e263]
+              - cell "수모형" [ref=e264]
+              - cell "3회" [ref=e265]
+              - cell "도움 필요" [ref=e266]:
+                - generic [ref=e267]: 도움 필요
+        - paragraph [ref=e268]: 예시 기록은 화면 미리보기를 위한 샘플입니다. 학생 풀이 기록이 생기면 실제 기록이 표시됩니다.
+      - generic [ref=e269]:
+        - generic [ref=e270]: 차근차근 나눗셈 연습실
+        - generic [ref=e271]: 기록은 이 기기에만 저장됩니다.
+  - status
