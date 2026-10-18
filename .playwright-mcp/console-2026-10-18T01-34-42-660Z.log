@@ -1,0 +1,2 @@
+[      91ms] [INFO] [preview-bridge] v1.1.0 @ https://0xfouv65m4lqc78e.jitda.io/__preview-bridge.js:1
+[   21250ms] [WARNING] Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently @ :2

@@ -468,10 +468,8 @@ function handleQuotientInput(event) {
 
 function renderCompletedProblem() {
   const problemCard = $('.problem-card', studentView);
-  const scratchCard = $('.scratch-card', studentView);
   const workArea = $('.work-area', studentView);
   problemCard.hidden = true;
-  scratchCard.hidden = true;
   const isLast = state.problemIndex === 2;
   let doneCard = $('#problemDone', workArea);
   if (!doneCard) {
@@ -503,8 +501,8 @@ function renderCompletedProblem() {
     state.directMode = true;
     setInputMode(true);
     problemCard.hidden = false;
-    scratchCard.hidden = false;
     doneCard.remove();
+    $('#clearCanvas').click();
     renderProblem();
   });
 }

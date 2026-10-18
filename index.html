@@ -57,18 +57,17 @@
               <div class="place-digits" id="placeDigits"></div>
               <div class="window-mask-label" id="maskLabel">아직 볼 차례가 아니에요</div>
             </div>
+            <section class="calculation-work" aria-label="나눗셈 계산 과정 작성 공간">
+              <div class="scratch-head"><div><span class="label-caps">나의 풀이 공간</span><p>세로셈 과정을 아래에 직접 적어보세요.</p></div><button type="button" class="text-button" id="clearCanvas"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3.3 5.2h11.4M7 5.2V3.8h4v1.4m2.5 0-.6 9H5.1l-.6-9m3.1 2.3v4.2m2.8-4.2v4.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>지우기</button></div>
+              <canvas id="scratchCanvas" aria-label="손글씨로 나눗셈 계산 과정을 적는 공간"></canvas>
+              <div class="scratch-foot"><span><span class="pen-dot"></span>손글씨 풀이</span><span>풀이 흔적은 이 기기에 저장되지 않아요</span></div>
+            </section>
             <form class="answer-form" id="answerForm">
               <button class="button-primary" id="checkAnswerButton" type="submit">확인하기 <span aria-hidden="true">↗</span></button>
               <p class="answer-feedback" id="answerFeedback" aria-live="polite"></p>
             </form>
             <button class="answer-mode-link" id="toggleDirectMode" type="button" aria-expanded="false">막히면 한 자리씩 단계별로 풀어보기 <span aria-hidden="true">→</span></button>
           </article>
-
-          <section class="scratch-card card" aria-label="손글씨 풀이 공간">
-            <div class="scratch-head"><div><span class="label-caps">나의 풀이 공간</span><p>손가락이나 마우스로 자유롭게 써 보세요.</p></div><button type="button" class="text-button" id="clearCanvas"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3.3 5.2h11.4M7 5.2V3.8h4v1.4m2.5 0-.6 9H5.1l-.6-9m3.1 2.3v4.2m2.8-4.2v4.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>지우기</button></div>
-            <canvas id="scratchCanvas" aria-label="손글씨로 계산 과정을 적는 공간"></canvas>
-            <div class="scratch-foot"><span><span class="pen-dot"></span>손글씨 풀이</span><span>풀이 흔적은 이 기기에 저장되지 않아요</span></div>
-          </section>
         </section>
 
         <aside class="help-panel card" aria-label="단계별 도움">
