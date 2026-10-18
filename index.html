@@ -37,7 +37,8 @@
       <section class="student-grid" aria-label="나눗셈 연습 공간">
         <section class="work-area">
           <article class="problem-card card">
-            <div class="problem-topline"><span class="label-caps">오늘의 문제</span><span class="random-tag"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M12.8 5.2A5.4 5.4 0 0 0 3.2 4L2 5.2m0 0V2.8m0 2.4h2.4M3.2 10.8a5.4 5.4 0 0 0 9.6 1.2l1.2-1.2m0 0v2.4m0-2.4h-2.4" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>무작위 문제</span></div>
+            <div class="problem-topline"><span class="label-caps">오늘의 문제</span><div class="problem-actions"><span class="random-tag"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M12.8 5.2A5.4 5.4 0 0 0 3.2 4L2 5.2m0 0V2.8m0 2.4h2.4M3.2 10.8a5.4 5.4 0 0 0 9.6 1.2l1.2-1.2m0 0v2.4m0-2.4h-2.4" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>무작위 문제</span><form class="problem-submit-form" id="answerForm"><button class="button-primary" id="checkAnswerButton" type="submit">제출 <span aria-hidden="true">↗</span></button></form></div></div>
+            <p class="answer-feedback problem-feedback" id="answerFeedback" aria-live="polite"></p>
             <div class="long-division" aria-label="세로셈 나눗셈 문제">
               <span class="long-division-label" id="longDivisionLabel">나눗셈 세로셈</span>
               <section class="calculation-work" aria-label="세로셈 계산 과정">
@@ -74,10 +75,6 @@
               <div class="place-digits" id="placeDigits"></div>
               <div class="window-mask-label" id="maskLabel">아직 볼 차례가 아니에요</div>
             </div>
-            <form class="answer-form" id="answerForm">
-              <button class="button-primary" id="checkAnswerButton" type="submit">확인하기 <span aria-hidden="true">↗</span></button>
-              <p class="answer-feedback" id="answerFeedback" aria-live="polite"></p>
-            </form>
             <button class="answer-mode-link" id="toggleDirectMode" type="button" aria-expanded="false">막히면 한 자리씩 단계별로 풀어보기 <span aria-hidden="true">→</span></button>
           </article>
         </section>

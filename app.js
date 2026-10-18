@@ -197,7 +197,7 @@ function renderProblem() {
   $('#toggleDirectMode').innerHTML = state.directMode
     ? '막히면 한 자리씩 단계별로 풀어보기 <span aria-hidden="true">→</span>'
     : '문제 전체를 보고 몫을 한 번에 입력하기 <span aria-hidden="true">→</span>';
-  $('#checkAnswerButton').innerHTML = state.directMode ? '정답 확인 <span aria-hidden="true">↗</span>' : '확인하기 <span aria-hidden="true">↗</span>';
+  $('#checkAnswerButton').innerHTML = '제출 <span aria-hidden="true">↗</span>';
   renderPlaceWindow();
   renderVerticalDivision();
   renderAnswerPreview();
@@ -255,7 +255,7 @@ function setInputMode(direct) {
   toggle.innerHTML = direct
     ? '막히면 한 자리씩 단계별로 풀어보기 <span aria-hidden="true">→</span>'
     : '문제 전체를 보고 몫을 한 번에 입력하기 <span aria-hidden="true">→</span>';
-  $('#checkAnswerButton').innerHTML = direct ? '정답 확인 <span aria-hidden="true">↗</span>' : '확인하기 <span aria-hidden="true">↗</span>';
+  $('#checkAnswerButton').innerHTML = '제출 <span aria-hidden="true">↗</span>';
   renderVerticalDivision();
   renderAnswerPreview();
   renderCalculationSteps();

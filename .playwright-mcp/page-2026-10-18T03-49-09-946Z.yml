@@ -1,0 +1,97 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - link "차근차근 나눗셈 홈" [ref=e4] [cursor=pointer]:
+        - /url: "#student"
+        - img [ref=e6]
+        - generic [ref=e10]:
+          - strong [ref=e11]: 차근차근
+          - generic [ref=e12]: 나눗셈 연습실
+      - navigation "주요 메뉴" [ref=e13]:
+        - button "학생 풀이" [ref=e14] [cursor=pointer]
+        - button "교사 대시보드" [ref=e15] [cursor=pointer]
+      - generic [ref=e17]: 나
+    - main [ref=e18]:
+      - generic [ref=e20]:
+        - paragraph [ref=e21]: 오늘의 연습 · 3문제
+        - heading "천천히 나누어도 괜찮아요." [level=1] [ref=e23]:
+          - text: 천천히 나누어도
+          - text: 괜찮아요.
+        - paragraph [ref=e24]: 한 자리씩 살펴보며 나눗셈의 원리를 찾아봐요.
+      - region "나눗셈 연습 공간" [ref=e25]:
+        - article [ref=e27]:
+          - generic [ref=e28]:
+            - generic [ref=e29]: 오늘의 문제
+            - generic [ref=e30]:
+              - generic [ref=e31]:
+                - img [ref=e32]
+                - text: 무작위 문제
+              - button "제출" [ref=e35] [cursor=pointer]:
+                - text: 제출
+                - generic [ref=e36]: ↗
+          - paragraph
+          - generic "세로셈 나눗셈 문제" [ref=e37]:
+            - generic [ref=e38]: 세 자리 문제를 보고 몫을 입력하세요
+            - region "세로셈 계산 과정" [ref=e39]:
+              - generic [ref=e40]:
+                - generic [ref=e41]:
+                  - text: 계산 과정
+                  - paragraph [ref=e42]: 몫과 빼는 수를 각 칸에 쓰면 인식해요. 남은 수는 자동으로 계산해요.
+                - generic [ref=e43]:
+                  - tablist "풀이 입력 방식" [ref=e44]:
+                    - tab "손글씨" [selected] [ref=e45] [cursor=pointer]
+                    - tab "숫자 입력" [ref=e46] [cursor=pointer]
+                  - button "지우기" [ref=e47] [cursor=pointer]:
+                    - img [ref=e48]
+                    - text: 지우기
+              - generic [ref=e50]:
+                - generic [ref=e51]:
+                  - generic [ref=e52]: "2"
+                  - generic [ref=e53]:
+                    - generic [ref=e54]:
+                      - generic [ref=e55]: 몫
+                      - generic "몫 입력 칸" [ref=e56]:
+                        - textbox "백의 자리 몫" [ref=e57]
+                        - textbox "십의 자리 몫" [ref=e58]
+                        - textbox "일의 자리 몫" [ref=e59]
+                    - generic [ref=e61]:
+                      - generic [ref=e62]: "4"
+                      - generic [ref=e63]: "2"
+                      - generic [ref=e64]: "8"
+                - tabpanel "숫자 입력" [ref=e65]
+                - generic "세로셈 문제 위에 손글씨로 계산 과정을 적는 공간" [ref=e66]
+              - generic [ref=e67]:
+                - generic [ref=e70]: 손글씨 풀이
+                - generic [ref=e71]: 풀이 흔적은 이 기기에 저장되지 않아요
+          - button "막히면 한 자리씩 단계별로 풀어보기" [ref=e73] [cursor=pointer]:
+            - text: 막히면 한 자리씩 단계별로 풀어보기
+            - generic [ref=e74]: →
+        - complementary "단계별 도움" [ref=e75]:
+          - generic [ref=e76]:
+            - generic [ref=e77]:
+              - text: 필요할 때 꺼내 쓰는
+              - heading "도움 도구" [level=2] [ref=e78]
+            - img [ref=e80]
+          - paragraph [ref=e83]: 현재 단계에 필요한 도구를 골라보세요.
+          - tablist "도움 도구 선택" [ref=e84]:
+            - tab "가리기" [ref=e85] [cursor=pointer]:
+              - img [ref=e87]
+              - generic [ref=e90]: 가리기
+            - tab "곱셈구구" [ref=e91] [cursor=pointer]:
+              - img [ref=e93]
+              - generic [ref=e96]: 곱셈구구
+            - tab "수모형" [ref=e97] [cursor=pointer]:
+              - img [ref=e99]
+              - generic [ref=e104]: 수모형
+          - tabpanel [ref=e105]:
+            - generic [ref=e106]:
+              - generic [ref=e107]: "?"
+              - heading "막히는 순간에 골라보세요" [level=3] [ref=e108]
+              - paragraph [ref=e109]: 도움을 여는 것도 중요한 학습 과정이에요. 정답을 알려주지 않고, 지금 필요한 실마리를 보여줄게요.
+          - generic [ref=e110]:
+            - generic [ref=e111]: "?"
+            - generic [ref=e112]: 정답 대신, 생각의 실마리를 찾아요.
+      - generic [ref=e113]:
+        - generic [ref=e114]: 차근차근 나눗셈 연습실
+        - generic [ref=e115]: 한 단계씩, 내 힘으로.
+  - status
