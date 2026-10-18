@@ -322,6 +322,11 @@ function handleCalculationInput(event) {
   if (!state.applyingOcr && input.dataset.ocrFilled === 'true') clearHandwritingInk(input);
   if (!state.applyingOcr) input.removeAttribute('data-ocr-filled');
   state.calculationEntries[step].product[Number(input.dataset.calcColumn)] = value;
+  if (value && state.workMode === 'numeric') {
+    const productInputs = $$(`.calc-digit-input[data-calc-step="${step}"][data-calc-kind="product"]`);
+    const nextInput = productInputs[productInputs.indexOf(input) + 1];
+    if (nextInput) nextInput.focus();
+  }
   tryCompleteCalculation(step);
 }
 
@@ -381,9 +386,17 @@ function completeCalculationStep(step, remainder) {
   }
   autoSkipZeroQuotients();
   renderCalculationSteps();
-  $('#workspaceHint').textContent = remainder === 0
-    ? '남은 수가 0이므로 다음 숫자를 내려와요.'
-    : '남은 수를 다음 자리 숫자와 이어서 계산해요.';
+  const nextStep = state.processStage;
+  if (nextStep < 3 && state.directMode && state.directDigits[nextStep] === '') {
+    $(`#quotientDigit${nextStep}`).focus();
+    $('#workspaceHint').textContent = remainder === 0
+      ? '나머지가 0이에요. 다음 자리 몫을 입력해요.'
+      : '남은 수를 다음 자리 숫자와 이어서 계산해요. 다음 자리 몫을 입력해요.';
+  } else {
+    $('#workspaceHint').textContent = remainder === 0
+      ? '남은 수가 0이므로 다음 숫자를 내려와요.'
+      : '남은 수를 다음 자리 숫자와 이어서 계산해요.';
+  }
 }
 
 function tryCompleteCalculation(step) {
@@ -399,7 +412,11 @@ function tryCompleteCalculation(step) {
   const expectedProduct = problem.divisor * quotientDigit;
   const productText = String(expectedProduct);
   const columns = getProductColumns(step, productText.length);
-  if (!columns.every((column) => state.calculationEntries[step].product[column] !== '')) return;
+  const missingColumns = columns.filter((column) => state.calculationEntries[step].product[column] === '');
+  if (missingColumns.length) {
+    $('#workspaceHint').textContent = `곱해 뺄 수의 ${missingColumns.length > 1 ? '남은 숫자 칸' : '다음 숫자 칸'}을 채워주세요.`;
+    return;
+  }
   const enteredProduct = Number(columns.map((column) => state.calculationEntries[step].product[column]).join(''));
   if (enteredProduct !== expectedProduct) {
     $('#workspaceHint').textContent = '곱해 뺄 수를 다시 살펴봐요.';
@@ -566,7 +583,8 @@ async function recognizeHandwriting(target, revision = state.ocrRevision, stroke
     target.dispatchEvent(new Event('input', { bubbles: true }));
     state.applyingOcr = false;
     const feedback = $('#workspaceHint').textContent;
-    if (!feedback.includes('다시 살펴봐요') && !feedback.includes('나누는 수보다 작아야')) {
+    const guidanceVisible = ['다시 살펴봐요', '나누는 수보다 작아야', '다음 숫자 칸', '남은 숫자 칸', '다음 자리 몫'].some((text) => feedback.includes(text));
+    if (!guidanceVisible) {
       $('#workspaceHint').textContent = `숫자 ${digit}를 인식해 입력했어요. 틀리면 다시 쓰거나 숫자 입력 모드에서 고칠 수 있어요.`;
     }
   } catch {

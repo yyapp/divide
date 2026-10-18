@@ -79,14 +79,14 @@ h1 { margin-bottom: 8px; font-family: 'Manrope', 'Gowun Dodum', sans-serif; font
 .division-board::before { position: absolute; z-index: 0; top: 115px; right: 0; bottom: 0; left: 0; background-image: linear-gradient(to bottom, transparent 31px, #eef0ea 32px, transparent 33px); background-size: 100% 34px; content: ''; pointer-events: none; }
 .division-layout { position: relative; display: flex; align-items: flex-start; justify-content: center; gap: 8px; min-height: 104px; margin-top: 8px; }
 .division-divisor { width: 29px; height: 36px; flex: 0 0 29px; margin-top: 44px; color: #29382e; font-family: 'Manrope', sans-serif; font-size: 27px; font-weight: 600; line-height: 36px; text-align: center; }
-.division-body { --place-width: 42px; --place-gap: 8px; --place-inset: 14px; position: relative; padding-top: 34px; }
+.division-body { position: relative; padding-top: 34px; }
 .division-quotient-row { position: absolute; top: -7px; left: 0; }
 .quotient-caption { position: absolute; top: 7px; left: -36px; color: #92988e; font-size: 9px; }
 .division-quotient, .division-dividend { display: grid; grid-template-columns: repeat(3, 42px); gap: 8px; }
 .division-quotient { padding-left: 14px; }
-.place-separator { position: absolute; z-index: 2; top: -7px; bottom: 0; border-left: 1px dashed #aab7a8; pointer-events: none; }
-.separator-one { left: calc(var(--place-inset) + var(--place-width) + var(--place-gap) / 2); }
-.separator-two { left: calc(var(--place-inset) + var(--place-width) * 2 + var(--place-gap) * 1.5); }
+.board-place-separator { position: absolute; z-index: 3; top: 0; bottom: 0; border-left: 1px dashed #aab7a8; pointer-events: none; }
+.board-place-separator.separator-one { left: calc(50% - 6px); }
+.board-place-separator.separator-two { left: calc(50% + 44px); }
 .quotient-digit { display: grid; width: 42px; height: 38px; place-items: center; padding: 0; border: 0; border-bottom: 1px solid #c9cec4; border-radius: 0; outline: none; background: transparent; color: #385b40; font-family: 'Manrope', sans-serif; font-size: 18px; font-weight: 600; text-align: center; transition: background .18s, color .18s; }
 .quotient-digit.current-place { border-bottom: 2px solid #719374; color: #426b4c; }
 .quotient-digit.empty { border: 1px solid #dfe4dc; border-radius: 4px; background: #fff; color: #385b40; }
@@ -345,7 +345,8 @@ tbody tr:last-child td { border-bottom: 0; }
   #calculationSteps { height: 338px; }
   .division-divisor { width: 25px; height: 34px; flex-basis: 25px; font-size: 24px; line-height: 34px; }
   .division-quotient, .division-dividend { grid-template-columns: repeat(3, 38px); gap: 6px; }
-  .division-body { --place-width: 38px; --place-gap: 6px; }
+  .board-place-separator.separator-one { left: calc(50% - 3px); }
+  .board-place-separator.separator-two { left: calc(50% + 41px); }
   .division-quotient { padding-left: 14px; }
   .quotient-digit { width: 38px; height: 36px; }
   .division-digit { width: 38px; height: 34px; font-size: 20px; }
