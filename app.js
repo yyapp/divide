@@ -138,8 +138,6 @@ function currentDivisionValue(problem, targetStage = state.stage) {
 function renderProblem() {
   const problem = getProblem();
   if (!problem) return;
-  $('#problemSequence').textContent = `문제 ${String(state.problemIndex + 1).padStart(2, '0')} / 03`;
-  $('#pathCount').textContent = `${String(state.problemIndex + 1).padStart(2, '0')} / 03`;
   $('#longDivisor').textContent = problem.divisor;
   $('#stepCounter').textContent = `${state.stage + 1} / 3 단계`;
   $('#stageNumber').textContent = `0${state.stage + 1}`;
@@ -225,13 +223,8 @@ function renderProgress() {
     item.setAttribute('aria-current', index === state.problemIndex ? 'step' : 'false');
   });
   const lineFill = $('#pathLineFill');
-  if (window.matchMedia('(max-width: 760px)').matches) {
-    lineFill.style.width = `${state.problemIndex * 50}%`;
-    lineFill.style.height = '100%';
-  } else {
-    lineFill.style.height = `${state.problemIndex * 50}%`;
-    lineFill.style.width = '100%';
-  }
+  lineFill.style.width = `${state.problemIndex * 50}%`;
+  lineFill.style.height = '100%';
 }
 
 function showToast(message) {
@@ -509,7 +502,7 @@ function renderCompletedProblem() {
       state.activeHelp = null;
       state.record = null;
       state.pendingHelpResult = false;
-      $('.path-list').innerHTML = TYPES.map((_, index) => `<li class="path-item${index === 0 ? ' current' : ''}" data-path="${index}"><span class="path-marker">${index + 1}</span><span><strong>${index + 1}번째 문제</strong><small>오늘의 연습</small></span></li>`).join('');
+      $('#pathList').innerHTML = TYPES.map((_, index) => `<li class="path-item${index === 0 ? ' current' : ''}"><span class="path-marker">${index + 1}</span></li>`).join('');
     } else {
       state.problemIndex += 1;
       state.stage = 0;
@@ -524,8 +517,6 @@ function renderCompletedProblem() {
     scratchCard.hidden = false;
     doneCard.remove();
     renderProblem();
-    $('#pathLineFill').style.width = '';
-    $('#pathLineFill').style.height = '';
   });
 }
 

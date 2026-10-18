@@ -55,32 +55,19 @@ h1 { margin-bottom: 8px; font-family: 'Manrope', 'Gowun Dodum', sans-serif; font
 .session-chip strong, .session-chip small { display: block; }
 .session-chip strong { font-size: 11px; }
 .session-chip small { color: var(--muted); font-size: 10px; }
-.student-grid { display: grid; grid-template-columns: minmax(190px, .72fr) minmax(430px, 1.8fr) minmax(260px, .97fr); align-items: start; gap: 18px; }
-.card, .dashboard-card { border: 1px solid rgba(225, 225, 216, .94); border-radius: 13px; background: var(--white); box-shadow: var(--shadow); }
-.lesson-rail { position: sticky; top: 18px; min-height: 600px; padding: 22px 18px 18px; }
-.rail-heading { display: flex; align-items: center; justify-content: space-between; padding-bottom: 20px; border-bottom: 1px solid #eeeee8; }
-.section-kicker, .label-caps { color: #899187; font-size: 9px; font-weight: 700; letter-spacing: .15em; }
-.path-count { color: #979a92; font-size: 10px; font-variant-numeric: tabular-nums; }
-.path-track { position: relative; padding: 23px 0 8px; }
-.path-line { position: absolute; top: 35px; bottom: 38px; left: 14px; width: 1px; background: #e9eae4; }
-.path-line span { display: block; width: 100%; height: 0; background: #77a58a; transition: height .32s; }
-.path-list { position: relative; display: grid; gap: 21px; margin: 0; padding: 0; list-style: none; }
-.path-item { display: grid; grid-template-columns: 29px 1fr; align-items: start; gap: 9px; color: #a0a39c; }
-.path-marker { z-index: 1; display: grid; width: 29px; height: 29px; place-items: center; border: 1px solid #e3e5de; border-radius: 50%; background: var(--white); color: #a0a39c; font-size: 10px; font-weight: 700; transition: all .22s; }
-.path-item strong, .path-item small { display: block; }
-.path-item strong { padding-top: 1px; color: #969a92; font-size: 11px; font-weight: 600; }
-.path-item small { margin-top: 3px; color: #a5a79f; font-size: 10px; }
+.number-progress { position: relative; width: 188px; height: 30px; margin: -13px auto 21px; }
+.number-progress-track { position: absolute; top: 14px; right: 14px; left: 14px; height: 2px; overflow: hidden; background: #e4e7df; }
+.number-progress-track span { display: block; width: 0; height: 100%; background: #75a17d; transition: width .3s ease; }
+.number-progress-list { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; margin: 0; padding: 0; list-style: none; }
+.path-item { display: flex; align-items: center; justify-content: center; }
+.path-marker { display: grid; width: 30px; height: 30px; place-items: center; border: 1px solid #dfe3da; border-radius: 50%; background: var(--paper); color: #9a9e95; font-size: 11px; font-weight: 700; transition: all .22s; }
 .path-item.current .path-marker { border-color: var(--green); background: var(--green); color: white; box-shadow: 0 0 0 4px #e9f1e9; }
-.path-item.current strong { color: #35483b; }
-.path-item.complete .path-marker { border-color: #d6e8d9; background: #e4f1e4; color: #49805b; }
-.path-item.complete strong { color: #667c68; }
-.rail-note { display: flex; gap: 9px; margin-top: 51px; padding: 12px 11px; border-radius: 8px; background: #f2f4ee; }
-.note-mark { display: grid; width: 17px; height: 17px; flex: 0 0 17px; place-items: center; border: 1px solid #a7b59f; border-radius: 50%; color: #687e68; font-family: Georgia, serif; font-size: 11px; font-style: italic; }
-.rail-note p { margin: 0; color: #727e70; font-size: 10px; line-height: 1.65; }
-.rail-bottom { display: flex; align-items: center; gap: 7px; margin-top: 22px; padding: 13px 1px 0; border-top: 1px solid #eeeee8; color: #9b9e96; font-size: 10px; }
-.tiny-star { color: #d8a849; font-size: 14px; }
+.path-item.complete .path-marker { border-color: #b9d2bb; background: #e4f1e4; color: #49805b; }
+.student-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 320px); align-items: start; gap: 18px; }
+.card, .dashboard-card { border: 1px solid rgba(225, 225, 216, .94); border-radius: 13px; background: var(--white); box-shadow: var(--shadow); }
+.section-kicker, .label-caps { color: #899187; font-size: 9px; font-weight: 700; letter-spacing: .15em; }
 .work-area { min-width: 0; }
-.work-meta { display: flex; align-items: center; justify-content: space-between; margin: 0 2px 10px; }
+.work-meta { display: flex; align-items: center; justify-content: flex-end; margin: 0 2px 10px; }
 .problem-type { padding: 5px 9px; border-radius: 5px; background: #e8efe6; color: #52745a; font-size: 10px; font-weight: 700; }
 .problem-sequence { color: #71806f; font-size: 10px; font-weight: 700; letter-spacing: .04em; }
 .step-counter { color: #969990; font-size: 10px; font-variant-numeric: tabular-nums; }
@@ -312,12 +299,11 @@ tbody tr:last-child td { border-bottom: 0; }
 .complete-card .button-primary { max-width: 230px; min-height: 40px; padding: 0 16px; }
 
 @media (max-width: 1150px) {
-  .student-grid { grid-template-columns: minmax(175px, .7fr) minmax(390px, 1.65fr); }
-  .help-panel { position: static; grid-column: 2; grid-row: 2; min-height: unset; }
+  .student-grid { grid-template-columns: minmax(0, 1.3fr) minmax(260px, .8fr); }
+  .help-panel { position: static; min-height: unset; }
   .help-content { min-height: 170px; }
   .help-tabs { grid-template-columns: repeat(3, minmax(90px, 1fr)); }
   .help-tab { display: flex; justify-content: center; min-height: 48px; }
-  .lesson-rail { grid-row: 1 / span 2; }
   .dashboard-metrics { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 760px) {
@@ -336,17 +322,8 @@ tbody tr:last-child td { border-bottom: 0; }
   .welcome-copy { max-width: 270px; font-size: 12px; }
   .mobile-break { display: initial; }
   .session-chip { display: none; }
+  .number-progress { width: 168px; margin: -8px auto 16px; }
   .student-grid { grid-template-columns: 1fr; gap: 12px; }
-  .lesson-rail { position: static; grid-row: auto; min-height: auto; padding: 13px 14px 10px; }
-  .rail-heading { padding-bottom: 10px; }
-  .path-track { padding: 12px 0 3px; }
-  .path-line { top: 25px; right: 12%; bottom: auto; left: 12%; width: auto; height: 1px; }
-  .path-line span { width: 0; height: 100%; transition: width .3s; }
-  .path-list { grid-template-columns: repeat(3, 1fr); gap: 3px; }
-  .path-item { display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; }
-  .path-item strong { font-size: 9px; }
-  .path-item small { font-size: 8px; }
-  .rail-note, .rail-bottom { display: none; }
   .work-meta { margin-bottom: 7px; }
   .problem-card { padding: 20px 17px; }
   .long-division { min-height: 128px; }
