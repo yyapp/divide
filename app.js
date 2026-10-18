@@ -47,6 +47,7 @@ const state = {
   problemIndex: 0,
   stage: 0,
   directMode: true,
+  workMode: 'handwriting',
   solvedDigits: [null, null, null],
   directDigits: ['', '', ''],
   stepEntry: '',
@@ -215,6 +216,21 @@ function setInputMode(direct) {
   renderVerticalDivision();
   renderAnswerPreview();
   $(`#quotientDigit${direct ? 0 : state.stage}`).focus();
+}
+
+function setWorkMode(mode) {
+  state.workMode = mode;
+  const handwriting = mode === 'handwriting';
+  $('#handwritingPane').hidden = !handwriting;
+  $('#numericPane').hidden = handwriting;
+  $('#handwritingTab').classList.toggle('active', handwriting);
+  $('#numericTab').classList.toggle('active', !handwriting);
+  $('#handwritingTab').setAttribute('aria-selected', String(handwriting));
+  $('#numericTab').setAttribute('aria-selected', String(!handwriting));
+  $('#workspaceHint').textContent = handwriting
+    ? '세로셈 과정을 아래에 직접 적어보세요.'
+    : '숫자와 계산 기호로 풀이 과정을 적어보세요.';
+  $('#workModeLabel').textContent = handwriting ? '손글씨 풀이' : '숫자 풀이';
 }
 
 function showToast(message) {
@@ -502,7 +518,7 @@ function renderCompletedProblem() {
     setInputMode(true);
     problemCard.hidden = false;
     doneCard.remove();
-    $('#clearCanvas').click();
+    clearWorkspaces();
     renderProblem();
   });
 }
@@ -577,12 +593,19 @@ function setView(view) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+function clearWorkspaces() {
+  const context = scratchCanvas.getContext('2d');
+  context.clearRect(0, 0, scratchCanvas.width, scratchCanvas.height);
+  $('#numericWork').value = '';
+}
+
 function initCanvas() {
   const context = scratchCanvas.getContext('2d');
   let drawing = false;
   let previous = null;
   const resize = () => {
     const bounds = scratchCanvas.getBoundingClientRect();
+    if (!bounds.width || !bounds.height) return;
     const ratio = window.devicePixelRatio || 1;
     const image = document.createElement('canvas');
     image.width = scratchCanvas.width;
@@ -622,7 +645,10 @@ function initCanvas() {
   const stop = () => { drawing = false; previous = null; };
   scratchCanvas.addEventListener('pointerup', stop);
   scratchCanvas.addEventListener('pointercancel', stop);
-  $('#clearCanvas').addEventListener('click', () => context.clearRect(0, 0, scratchCanvas.width, scratchCanvas.height));
+  $('#clearWork').addEventListener('click', () => {
+    if (state.workMode === 'handwriting') context.clearRect(0, 0, scratchCanvas.width, scratchCanvas.height);
+    else $('#numericWork').value = '';
+  });
   resize();
   window.addEventListener('resize', resize);
 }
@@ -639,6 +665,16 @@ function init() {
     }
   });
   $('#toggleDirectMode').addEventListener('click', () => setInputMode(!state.directMode));
+  $('#handwritingTab').addEventListener('click', () => setWorkMode('handwriting'));
+  $('#numericTab').addEventListener('click', () => setWorkMode('numeric'));
+  $$('.numeric-symbols [data-symbol]').forEach((button) => button.addEventListener('click', () => {
+    const textarea = $('#numericWork');
+    const symbol = button.dataset.symbol === 'newline' ? '\n' : button.dataset.symbol;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    textarea.setRangeText(symbol, start, end, 'end');
+    textarea.focus();
+  }));
   $$('.help-tab').forEach((tab) => tab.addEventListener('click', () => selectHelp(tab.dataset.help)));
   $$('[data-help-result]').forEach((button) => button.addEventListener('click', () => setHelpResult(button.dataset.helpResult)));
   $('#studentNav').addEventListener('click', () => setView('student'));
@@ -646,6 +682,7 @@ function init() {
   renderProblem();
   renderHelp();
   renderDashboard();
+  setWorkMode(state.workMode);
   initCanvas();
 }
 

@@ -58,9 +58,26 @@
               <div class="window-mask-label" id="maskLabel">아직 볼 차례가 아니에요</div>
             </div>
             <section class="calculation-work" aria-label="나눗셈 계산 과정 작성 공간">
-              <div class="scratch-head"><div><span class="label-caps">나의 풀이 공간</span><p>세로셈 과정을 아래에 직접 적어보세요.</p></div><button type="button" class="text-button" id="clearCanvas"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3.3 5.2h11.4M7 5.2V3.8h4v1.4m2.5 0-.6 9H5.1l-.6-9m3.1 2.3v4.2m2.8-4.2v4.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>지우기</button></div>
-              <canvas id="scratchCanvas" aria-label="손글씨로 나눗셈 계산 과정을 적는 공간"></canvas>
-              <div class="scratch-foot"><span><span class="pen-dot"></span>손글씨 풀이</span><span>풀이 흔적은 이 기기에 저장되지 않아요</span></div>
+              <div class="scratch-head">
+                <div class="workspace-heading"><span class="label-caps">나의 풀이 공간</span><p id="workspaceHint">세로셈 과정을 아래에 직접 적어보세요.</p></div>
+                <div class="workspace-controls">
+                  <div class="work-mode-switch" role="tablist" aria-label="풀이 입력 방식">
+                    <button class="work-mode-tab active" id="handwritingTab" type="button" role="tab" aria-selected="true" aria-controls="handwritingPane" data-mode="handwriting">손글씨</button>
+                    <button class="work-mode-tab" id="numericTab" type="button" role="tab" aria-selected="false" aria-controls="numericPane" data-mode="numeric">숫자 입력</button>
+                  </div>
+                  <button type="button" class="text-button" id="clearWork"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3.3 5.2h11.4M7 5.2V3.8h4v1.4m2.5 0-.6 9H5.1l-.6-9m3.1 2.3v4.2m2.8-4.2v4.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>지우기</button>
+                </div>
+              </div>
+              <div class="work-mode-pane" id="handwritingPane" role="tabpanel" aria-labelledby="handwritingTab">
+                <canvas id="scratchCanvas" aria-label="손글씨로 나눗셈 계산 과정을 적는 공간"></canvas>
+              </div>
+              <div class="work-mode-pane numeric-work-pane" id="numericPane" role="tabpanel" aria-labelledby="numericTab" hidden>
+                <div class="numeric-symbols" aria-label="계산 기호">
+                  <button type="button" data-symbol=" ÷ ">÷</button><button type="button" data-symbol=" × ">×</button><button type="button" data-symbol=" − ">−</button><button type="button" data-symbol=" = ">=</button><button type="button" data-symbol="newline">줄바꿈</button>
+                </div>
+                <textarea id="numericWork" rows="5" aria-label="숫자로 나눗셈 계산 과정 입력" placeholder="계산 과정을 숫자와 기호로 적어보세요."></textarea>
+              </div>
+              <div class="scratch-foot"><span><span class="pen-dot"></span><span id="workModeLabel">손글씨 풀이</span></span><span>풀이 흔적은 이 기기에 저장되지 않아요</span></div>
             </section>
             <form class="answer-form" id="answerForm">
               <button class="button-primary" id="checkAnswerButton" type="submit">확인하기 <span aria-hidden="true">↗</span></button>
