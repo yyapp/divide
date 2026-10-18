@@ -40,38 +40,29 @@
             <div class="problem-topline"><span class="label-caps">오늘의 문제</span><span class="random-tag"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M12.8 5.2A5.4 5.4 0 0 0 3.2 4L2 5.2m0 0V2.8m0 2.4h2.4M3.2 10.8a5.4 5.4 0 0 0 9.6 1.2l1.2-1.2m0 0v2.4m0-2.4h-2.4" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>무작위 문제</span></div>
             <div class="long-division" aria-label="세로셈 나눗셈 문제">
               <span class="long-division-label" id="longDivisionLabel">나눗셈 세로셈</span>
-              <div class="division-layout">
-                <span class="division-divisor" id="longDivisor">4</span>
-                <div class="division-body">
-                  <div class="division-quotient-row"><span class="quotient-caption">몫</span><div class="division-quotient" id="verticalQuotient"></div></div>
-                  <span class="place-separator separator-one" aria-hidden="true"></span>
-                  <span class="place-separator separator-two" aria-hidden="true"></span>
-                  <div class="division-dividend-frame"><div class="division-dividend" id="verticalDividend"></div></div>
-                </div>
-              </div>
               <section class="calculation-work" aria-label="세로셈 계산 과정">
                 <div class="scratch-head">
-                  <div class="workspace-heading"><span class="label-caps">계산 과정</span><p id="workspaceHint">나누고, 곱해 빼고, 남은 수를 내려 써보세요.</p></div>
+                  <div class="workspace-heading"><span class="label-caps">계산 과정</span><p id="workspaceHint">문제 위에서 나누고, 곱해 빼는 과정을 적어보세요.</p></div>
                   <div class="workspace-controls">
                     <div class="work-mode-switch" role="tablist" aria-label="풀이 입력 방식">
-                      <button class="work-mode-tab active" id="handwritingTab" type="button" role="tab" aria-selected="true" aria-controls="handwritingPane" data-mode="handwriting">손글씨</button>
-                      <button class="work-mode-tab" id="numericTab" type="button" role="tab" aria-selected="false" aria-controls="numericPane" data-mode="numeric">숫자 입력</button>
+                      <button class="work-mode-tab active" id="handwritingTab" type="button" role="tab" aria-selected="true" aria-controls="divisionBoard" data-mode="handwriting">손글씨</button>
+                      <button class="work-mode-tab" id="numericTab" type="button" role="tab" aria-selected="false" aria-controls="divisionBoard" data-mode="numeric">숫자 입력</button>
                     </div>
                     <button type="button" class="text-button" id="clearWork"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3.3 5.2h11.4M7 5.2V3.8h4v1.4m2.5 0-.6 9H5.1l-.6-9m3.1 2.3v4.2m2.8-4.2v4.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>지우기</button>
                   </div>
                 </div>
-                <div class="work-mode-pane" id="handwritingPane" role="tabpanel" aria-labelledby="handwritingTab">
-                  <div class="handwriting-surface">
-                    <div class="handwriting-guides" aria-hidden="true">
-                      <div><strong>1 · 백의 자리</strong><span>나누기 → 곱해서 빼기 → 남은 수</span></div>
-                      <div><strong>2 · 십의 자리</strong><span>남은 수를 내려와 이어서 계산</span></div>
-                      <div><strong>3 · 일의 자리</strong><span>마지막 자리까지 계산</span></div>
+                <div class="division-board" id="divisionBoard">
+                  <div class="division-layout">
+                    <span class="division-divisor" id="longDivisor">4</span>
+                    <div class="division-body">
+                      <div class="division-quotient-row"><span class="quotient-caption">몫</span><div class="division-quotient" id="verticalQuotient"></div></div>
+                      <span class="place-separator separator-one" aria-hidden="true"></span>
+                      <span class="place-separator separator-two" aria-hidden="true"></span>
+                      <div class="division-dividend-frame"><div class="division-dividend" id="verticalDividend"></div></div>
                     </div>
-                    <canvas id="scratchCanvas" aria-label="세로셈 계산 과정에 손글씨로 적는 공간"></canvas>
                   </div>
-                </div>
-                <div class="work-mode-pane numeric-work-pane" id="numericPane" role="tabpanel" aria-labelledby="numericTab" hidden>
-                  <div class="calculation-steps" id="calculationSteps"></div>
+                  <div class="calculation-steps" id="calculationSteps" role="tabpanel" aria-labelledby="numericTab" hidden></div>
+                  <canvas id="scratchCanvas" aria-label="세로셈 문제 위에 손글씨로 계산 과정을 적는 공간"></canvas>
                 </div>
                 <div class="scratch-foot"><span><span class="pen-dot"></span><span id="workModeLabel">손글씨 풀이</span></span><span>풀이 흔적은 이 기기에 저장되지 않아요</span></div>
               </section>

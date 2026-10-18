@@ -1,0 +1,5 @@
+[      36ms] [INFO] [preview-bridge] v1.1.0 @ https://0xfouv65m4lqc78e.jitda.io/__preview-bridge.js:1
+[      54ms] TypeError: Cannot set properties of null (setting 'hidden')
+    at setWorkMode (https://0xfouv65m4lqc78e.jitda.io/app.js:228:28)
+    at init (https://0xfouv65m4lqc78e.jitda.io/app.js:739:3)
+    at https://0xfouv65m4lqc78e.jitda.io/app.js:743:1

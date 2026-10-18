@@ -51,6 +51,7 @@ const state = {
   solvedDigits: [null, null, null],
   directDigits: ['', '', ''],
   stepEntry: '',
+  calculationEntries: Array.from({ length: 3 }, () => ({ product: ['', '', ''], remainder: '' })),
   activeHelp: null,
   coverPreviewStage: null,
   coverTransition: false,
@@ -59,6 +60,7 @@ const state = {
   record: null,
   pendingHelpResult: false,
   toastTimer: null,
+  resizeCanvas: null,
 };
 
 const $ = (selector, root = document) => root.querySelector(selector);
@@ -159,6 +161,7 @@ function renderProblem() {
   renderPlaceWindow();
   renderVerticalDivision();
   renderAnswerPreview();
+  renderCalculationSteps();
   answerFeedback.textContent = '';
   answerFeedback.classList.remove('error');
   if (state.activeHelp) renderHelp();
@@ -215,22 +218,78 @@ function setInputMode(direct) {
   $('#checkAnswerButton').innerHTML = direct ? '정답 확인 <span aria-hidden="true">↗</span>' : '확인하기 <span aria-hidden="true">↗</span>';
   renderVerticalDivision();
   renderAnswerPreview();
+  renderCalculationSteps();
   $(`#quotientDigit${direct ? 0 : state.stage}`).focus();
 }
 
 function setWorkMode(mode) {
   state.workMode = mode;
   const handwriting = mode === 'handwriting';
-  $('#handwritingPane').hidden = !handwriting;
-  $('#numericPane').hidden = handwriting;
+  scratchCanvas.hidden = !handwriting;
+  if (handwriting) state.resizeCanvas?.();
+  $('#calculationSteps').hidden = handwriting;
+  $('#divisionBoard').classList.toggle('numeric-work-mode', !handwriting);
   $('#handwritingTab').classList.toggle('active', handwriting);
   $('#numericTab').classList.toggle('active', !handwriting);
   $('#handwritingTab').setAttribute('aria-selected', String(handwriting));
   $('#numericTab').setAttribute('aria-selected', String(!handwriting));
   $('#workspaceHint').textContent = handwriting
-    ? '세로셈 과정을 아래에 직접 적어보세요.'
-    : '숫자와 계산 기호로 풀이 과정을 적어보세요.';
+    ? '나눗셈 문제 위에 계산 과정을 이어서 적어보세요.'
+    : '각 자리에서 곱해 빼고 남은 수를 입력해보세요.';
   $('#workModeLabel').textContent = handwriting ? '손글씨 풀이' : '숫자 풀이';
+}
+
+function renderCalculationSteps() {
+  const problem = getProblem();
+  if (!problem) return;
+  const digits = String(problem.dividend).padStart(3, '0').split('');
+  const visibleSteps = state.directMode ? 3 : state.stage + 1;
+  $('#calculationSteps').innerHTML = [0, 1, 2].map((index) => {
+    const entry = state.calculationEntries[index];
+    const cells = ['', '', ''];
+    if (index === 0) cells[0] = digits[0];
+    if (index === 1) {
+      cells[0] = state.calculationEntries[0].remainder;
+      cells[1] = digits[1];
+    }
+    if (index === 2) {
+      cells[1] = state.calculationEntries[1].remainder;
+      cells[2] = digits[2];
+    }
+    const current = cells.map((value, column) => {
+      const carry = (index === 1 && column === 0) || (index === 2 && column === 1);
+      const id = carry ? ` id="carry${index}"` : '';
+      return `<span class="calc-digit-value${carry && !value ? ' carry-empty' : ''}"${id}>${value || ''}</span>`;
+    }).join('');
+    const products = entry.product.map((value, column) => {
+      const active = index === 0 ? column === 0 : index === 1 ? column < 2 : column > 0;
+      return active
+        ? `<input class="calc-digit-input product-digit" type="text" inputmode="numeric" autocomplete="off" maxlength="1" value="${value}" aria-label="${PLACE_NAMES[index]} 자리에서 곱해 뺄 숫자 ${column + 1}" data-calc-step="${index}" data-calc-kind="product" data-calc-column="${column}">`
+        : '<span class="calc-digit-spacer"></span>';
+    }).join('');
+    const remainder = [0, 1, 2].map((column) => column === index
+      ? `<input class="calc-digit-input remainder-digit" type="text" inputmode="numeric" autocomplete="off" maxlength="1" value="${entry.remainder}" aria-label="${PLACE_NAMES[index]} 자리 계산 뒤 남은 수" data-calc-step="${index}" data-calc-kind="remainder" data-calc-column="${column}">`
+      : '<span class="calc-digit-spacer"></span>').join('');
+    return `<section class="calculation-step" data-step="${index}"${index >= visibleSteps ? ' hidden' : ''}><div class="calc-step-title"><span>0${index + 1}</span><strong>${PLACE_NAMES[index]} 자리</strong></div><div class="calc-operation-row"><span class="calc-operation-sign"></span><div class="calc-digit-grid">${current}</div></div><div class="calc-operation-row subtract-row"><span class="calc-operation-sign">−</span><div class="calc-digit-grid">${products}</div></div><div class="calc-remainder-row"><span class="calc-operation-sign"></span><div class="calc-digit-grid">${remainder}</div></div></section>`;
+  }).join('');
+}
+
+function handleCalculationInput(event) {
+  const input = event.target.closest('[data-calc-step]');
+  if (!input) return;
+  const step = Number(input.dataset.calcStep);
+  const value = input.value.replace(/[^0-9]/g, '').slice(0, 1);
+  input.value = value;
+  if (input.dataset.calcKind === 'remainder') {
+    state.calculationEntries[step].remainder = value;
+    const carry = $(`#carry${step + 1}`);
+    if (carry) {
+      carry.textContent = value;
+      carry.classList.toggle('carry-empty', !value);
+    }
+  } else {
+    state.calculationEntries[step].product[Number(input.dataset.calcColumn)] = value;
+  }
 }
 
 function showToast(message) {
@@ -596,7 +655,8 @@ function setView(view) {
 function clearWorkspaces() {
   const context = scratchCanvas.getContext('2d');
   context.clearRect(0, 0, scratchCanvas.width, scratchCanvas.height);
-  $('#numericWork').value = '';
+  state.calculationEntries = Array.from({ length: 3 }, () => ({ product: ['', '', ''], remainder: '' }));
+  renderCalculationSteps();
 }
 
 function initCanvas() {
@@ -620,6 +680,7 @@ function initCanvas() {
     context.strokeStyle = '#3f5d48';
     if (image.width && image.height) context.drawImage(image, 0, 0, bounds.width, bounds.height);
   };
+  state.resizeCanvas = resize;
   const point = (event) => {
     const bounds = scratchCanvas.getBoundingClientRect();
     return { x: event.clientX - bounds.left, y: event.clientY - bounds.top };
@@ -647,7 +708,10 @@ function initCanvas() {
   scratchCanvas.addEventListener('pointercancel', stop);
   $('#clearWork').addEventListener('click', () => {
     if (state.workMode === 'handwriting') context.clearRect(0, 0, scratchCanvas.width, scratchCanvas.height);
-    else $('#numericWork').value = '';
+    else {
+      state.calculationEntries = Array.from({ length: 3 }, () => ({ product: ['', '', ''], remainder: '' }));
+      renderCalculationSteps();
+    }
   });
   resize();
   window.addEventListener('resize', resize);
@@ -667,14 +731,7 @@ function init() {
   $('#toggleDirectMode').addEventListener('click', () => setInputMode(!state.directMode));
   $('#handwritingTab').addEventListener('click', () => setWorkMode('handwriting'));
   $('#numericTab').addEventListener('click', () => setWorkMode('numeric'));
-  $$('.numeric-symbols [data-symbol]').forEach((button) => button.addEventListener('click', () => {
-    const textarea = $('#numericWork');
-    const symbol = button.dataset.symbol === 'newline' ? '\n' : button.dataset.symbol;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    textarea.setRangeText(symbol, start, end, 'end');
-    textarea.focus();
-  }));
+  $('#calculationSteps').addEventListener('input', handleCalculationInput);
   $$('.help-tab').forEach((tab) => tab.addEventListener('click', () => selectHelp(tab.dataset.help)));
   $$('[data-help-result]').forEach((button) => button.addEventListener('click', () => setHelpResult(button.dataset.helpResult)));
   $('#studentNav').addEventListener('click', () => setView('student'));
