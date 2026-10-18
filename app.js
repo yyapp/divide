@@ -139,7 +139,6 @@ function renderProblem() {
   const problem = getProblem();
   if (!problem) return;
   $('#longDivisor').textContent = problem.divisor;
-  $('#stepCounter').textContent = `${state.stage + 1} / 3 단계`;
   $('#stageNumber').textContent = `0${state.stage + 1}`;
   $('#stageTitle').textContent = `${PLACE_NAMES[state.stage]} 자리부터 살펴봐요`;
   const prompts = [
@@ -149,13 +148,11 @@ function renderProblem() {
   ];
   $('#stageDescription').textContent = prompts[state.stage];
   $('#maskLabel').textContent = state.stage < 2 ? '다음 자리는 가림판 뒤에 있어요' : '모든 자리를 살펴보고 있어요';
-  $('#stepCounter').textContent = state.directMode ? '정답 바로 입력' : `${state.stage + 1} / 3 단계`;
   $('#longDivisionLabel').textContent = state.directMode ? '몫 칸에 세 자리 답을 써 보세요' : '나눗셈 세로셈';
   $('.problem-card', studentView).classList.toggle('direct-mode', state.directMode);
   renderPlaceWindow();
   renderVerticalDivision();
   renderAnswerPreview();
-  renderProgress();
   answerFeedback.textContent = '';
   answerFeedback.classList.remove('error');
   if (state.activeHelp) renderHelp();
@@ -203,7 +200,6 @@ function setInputMode(direct) {
     state.directDigits = state.solvedDigits.map((digit) => digit === null ? '' : String(digit));
   }
   $('.problem-card', studentView).classList.toggle('direct-mode', direct);
-  $('#stepCounter').textContent = direct ? '정답 바로 입력' : `${state.stage + 1} / 3 단계`;
   $('#longDivisionLabel').textContent = direct ? '몫 칸에 세 자리 답을 써 보세요' : '나눗셈 세로셈';
   const toggle = $('#toggleDirectMode');
   toggle.setAttribute('aria-expanded', String(direct));
@@ -214,17 +210,6 @@ function setInputMode(direct) {
   renderVerticalDivision();
   renderAnswerPreview();
   $(`#quotientDigit${direct ? 0 : state.stage}`).focus();
-}
-
-function renderProgress() {
-  $$('.path-item').forEach((item, index) => {
-    item.classList.toggle('current', index === state.problemIndex);
-    item.classList.toggle('complete', index < state.problemIndex);
-    item.setAttribute('aria-current', index === state.problemIndex ? 'step' : 'false');
-  });
-  const lineFill = $('#pathLineFill');
-  lineFill.style.width = `${state.problemIndex * 50}%`;
-  lineFill.style.height = '100%';
 }
 
 function showToast(message) {
@@ -502,7 +487,6 @@ function renderCompletedProblem() {
       state.activeHelp = null;
       state.record = null;
       state.pendingHelpResult = false;
-      $('#pathList').innerHTML = TYPES.map((_, index) => `<li class="path-item${index === 0 ? ' current' : ''}"><span class="path-marker">${index + 1}</span></li>`).join('');
     } else {
       state.problemIndex += 1;
       state.stage = 0;

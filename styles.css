@@ -55,22 +55,12 @@ h1 { margin-bottom: 8px; font-family: 'Manrope', 'Gowun Dodum', sans-serif; font
 .session-chip strong, .session-chip small { display: block; }
 .session-chip strong { font-size: 11px; }
 .session-chip small { color: var(--muted); font-size: 10px; }
-.number-progress { position: relative; width: 188px; height: 30px; margin: -13px auto 21px; }
-.number-progress-track { position: absolute; top: 14px; right: 14px; left: 14px; height: 2px; overflow: hidden; background: #e4e7df; }
-.number-progress-track span { display: block; width: 0; height: 100%; background: #75a17d; transition: width .3s ease; }
-.number-progress-list { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; margin: 0; padding: 0; list-style: none; }
-.path-item { display: flex; align-items: center; justify-content: center; }
-.path-marker { display: grid; width: 30px; height: 30px; place-items: center; border: 1px solid #dfe3da; border-radius: 50%; background: var(--paper); color: #9a9e95; font-size: 11px; font-weight: 700; transition: all .22s; }
-.path-item.current .path-marker { border-color: var(--green); background: var(--green); color: white; box-shadow: 0 0 0 4px #e9f1e9; }
-.path-item.complete .path-marker { border-color: #b9d2bb; background: #e4f1e4; color: #49805b; }
 .student-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 320px); align-items: start; gap: 18px; }
 .card, .dashboard-card { border: 1px solid rgba(225, 225, 216, .94); border-radius: 13px; background: var(--white); box-shadow: var(--shadow); }
 .section-kicker, .label-caps { color: #899187; font-size: 9px; font-weight: 700; letter-spacing: .15em; }
 .work-area { min-width: 0; }
-.work-meta { display: flex; align-items: center; justify-content: flex-end; margin: 0 2px 10px; }
 .problem-type { padding: 5px 9px; border-radius: 5px; background: #e8efe6; color: #52745a; font-size: 10px; font-weight: 700; }
 .problem-sequence { color: #71806f; font-size: 10px; font-weight: 700; letter-spacing: .04em; }
-.step-counter { color: #969990; font-size: 10px; font-variant-numeric: tabular-nums; }
 .problem-card { padding: clamp(21px, 2.5vw, 31px); }
 .problem-topline { display: flex; align-items: center; justify-content: space-between; }
 .random-tag { display: flex; align-items: center; gap: 5px; color: #8b9087; font-size: 10px; }
@@ -322,9 +312,7 @@ tbody tr:last-child td { border-bottom: 0; }
   .welcome-copy { max-width: 270px; font-size: 12px; }
   .mobile-break { display: initial; }
   .session-chip { display: none; }
-  .number-progress { width: 168px; margin: -8px auto 16px; }
   .student-grid { grid-template-columns: 1fr; gap: 12px; }
-  .work-meta { margin-bottom: 7px; }
   .problem-card { padding: 20px 17px; }
   .long-division { min-height: 128px; }
   .division-divisor { width: 25px; height: 34px; flex-basis: 25px; font-size: 24px; line-height: 34px; }
