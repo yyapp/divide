@@ -42,8 +42,12 @@ const SAMPLE_RECORDS = [
   { label: '예시 03', completed: [], tools: ['수모형'], toolCounts: { '가리기': 0, '곱셈구구': 0, '수모형': 2 }, attempts: 3, hints: 2, helpedSolved: 0, stillStuck: 1, lastHelpResult: 'stuck', status: '도움 필요' },
 ];
 
+function createCalculationEntry() {
+  return { product: ['', '', ''], remainder: null, expectedRemainder: null, remainderEntry: '', productValid: false, validated: false };
+}
+
 function createCalculationEntries() {
-  return Array.from({ length: 3 }, () => ({ product: ['', '', ''], remainder: null, validated: false }));
+  return Array.from({ length: 3 }, createCalculationEntry);
 }
 
 const state = {
@@ -164,7 +168,7 @@ function getProductColumns(index, digitCount) {
 }
 
 function resetCalculationsFrom(index) {
-  for (let step = index; step < 3; step += 1) state.calculationEntries[step] = { product: ['', '', ''], remainder: null, validated: false };
+  for (let step = index; step < 3; step += 1) state.calculationEntries[step] = createCalculationEntry();
   state.processStage = Math.min(state.processStage, index);
 }
 
@@ -296,7 +300,7 @@ function renderCalculationSteps() {
     const productColumns = product ? getProductColumns(step, product.length) : [];
     const productCells = [0, 1, 2].map((column) => {
       if (!productColumns.includes(column)) return '<span class="calc-digit-spacer"></span>';
-      if (entry.validated) return `<span class="calc-digit-value">${entry.product[column]}</span>`;
+      if (entry.productValid || entry.validated) return `<span class="calc-digit-value">${entry.product[column]}</span>`;
       return `<input class="calc-digit-input product-digit" type="text" inputmode="numeric" autocomplete="off" maxlength="1" value="${entry.product[column]}" aria-label="곱해 뺄 수 ${PLACE_NAMES[step]} 자리 ${column + 1}" data-calc-step="${step}" data-calc-kind="product" data-calc-column="${column}">`;
     }).join('');
     if (!(entry.validated && quotientDigit === 0)) rows.push(`<div class="process-row subtract-row"><span class="process-sign">−</span><div class="calc-digit-grid">${productCells}</div></div>`);
@@ -308,6 +312,11 @@ function renderCalculationSteps() {
         return '<span class="calc-digit-spacer"></span>';
       }).join('');
       rows.push(`<div class="process-row remainder-row"><span class="process-sign"></span><div class="calc-digit-grid">${remainderCells}</div></div>`);
+    } else if (entry.productValid && entry.expectedRemainder > 0) {
+      const remainderCells = [0, 1, 2].map((column) => column === step
+        ? `<input class="calc-digit-input carry-input" type="text" inputmode="numeric" autocomplete="off" maxlength="1" value="${entry.remainderEntry}" aria-label="받아내림할 남은 수 ${PLACE_NAMES[step]} 자리" data-calc-step="${step}" data-calc-kind="remainder" data-calc-column="${column}">`
+        : '<span class="calc-digit-spacer"></span>').join('');
+      rows.push(`<div class="process-row remainder-row"><span class="process-sign">↳</span><div class="calc-digit-grid">${remainderCells}</div></div>`);
     }
   }
   $('#calculationSteps').innerHTML = rows.join('');
@@ -321,6 +330,12 @@ function handleCalculationInput(event) {
   input.value = value;
   if (!state.applyingOcr && input.dataset.ocrFilled === 'true') clearHandwritingInk(input);
   if (!state.applyingOcr) input.removeAttribute('data-ocr-filled');
+  if (input.dataset.calcKind === 'remainder') {
+    state.calculationEntries[step].remainderEntry = value;
+    if (value && Number(value) === state.calculationEntries[step].expectedRemainder) completeCalculationStep(step, Number(value));
+    else if (value) $('#workspaceHint').textContent = '받아내릴 수를 다시 살펴봐요.';
+    return;
+  }
   state.calculationEntries[step].product[Number(input.dataset.calcColumn)] = value;
   if (value && state.workMode === 'numeric') {
     const productInputs = $$(`.calc-digit-input[data-calc-step="${step}"][data-calc-kind="product"]`);
@@ -337,7 +352,7 @@ function autoSkipZeroQuotients() {
     const quotientDigit = getQuotientDigit(step);
     const partial = getPartialDividend(step);
     if (quotientDigit !== 0 || partial === null || partial >= getProblem().divisor) break;
-    state.calculationEntries[step] = { product: ['', '', ''], remainder: partial, validated: true };
+    state.calculationEntries[step] = { ...createCalculationEntry(), remainder: partial, expectedRemainder: partial, productValid: true, validated: true };
     state.processStage += 1;
     changed = true;
   }
@@ -427,7 +442,19 @@ function tryCompleteCalculation(step) {
     $('#workspaceHint').textContent = '빼고 남은 수는 나누는 수보다 작아야 해요.';
     return;
   }
-  completeCalculationStep(step, remainder);
+  if (remainder === 0) {
+    completeCalculationStep(step, 0);
+    return;
+  }
+  state.calculationEntries[step].productValid = true;
+  state.calculationEntries[step].expectedRemainder = remainder;
+  state.calculationEntries[step].remainderEntry = '';
+  $$(`.calc-digit-input[data-calc-step="${step}"][data-calc-kind="product"][data-ocr-filled="true"]`).forEach((input) => {
+    clearHandwritingInk(input);
+    input.removeAttribute('data-ocr-filled');
+  });
+  renderCalculationSteps();
+  $('#workspaceHint').textContent = '남은 수가 있어요. 받아내림 칸에 써주세요.';
 }
 
 function findHandwritingTarget(x, y) {
@@ -509,7 +536,8 @@ function clearHandwritingCell(target) {
     } else if (state.stage === index) state.stepEntry = '';
   } else {
     const step = Number(target.dataset.calcStep);
-    state.calculationEntries[step].product[Number(target.dataset.calcColumn)] = '';
+    if (target.dataset.calcKind === 'remainder') state.calculationEntries[step].remainderEntry = '';
+    else state.calculationEntries[step].product[Number(target.dataset.calcColumn)] = '';
   }
 }
 
@@ -583,8 +611,10 @@ async function recognizeHandwriting(target, revision = state.ocrRevision, stroke
     target.dispatchEvent(new Event('input', { bubbles: true }));
     state.applyingOcr = false;
     const feedback = $('#workspaceHint').textContent;
-    const guidanceVisible = ['다시 살펴봐요', '나누는 수보다 작아야', '다음 숫자 칸', '남은 숫자 칸', '다음 자리 몫'].some((text) => feedback.includes(text));
-    if (!guidanceVisible) {
+    const guidance = ['다시 살펴봐요', '나누는 수보다 작아야', '다음 숫자 칸', '남은 숫자 칸', '다음 자리 몫', '받아내림 칸', '다음 숫자를 내려와요'].some((text) => feedback.includes(text));
+    if (guidance) {
+      $('#workspaceHint').textContent = `숫자 ${digit}를 인식했어요. ${feedback}`;
+    } else {
       $('#workspaceHint').textContent = `숫자 ${digit}를 인식해 입력했어요. 틀리면 다시 쓰거나 숫자 입력 모드에서 고칠 수 있어요.`;
     }
   } catch {
@@ -991,7 +1021,7 @@ function clearRecognizedInputs() {
       }
     } else {
       const step = Number(input.dataset.calcStep);
-      state.calculationEntries[step] = { product: ['', '', ''], remainder: null, validated: false };
+      state.calculationEntries[step] = createCalculationEntry();
       state.processStage = Math.min(state.processStage, step);
     }
   });
@@ -1094,7 +1124,7 @@ function initCanvas() {
     }
     else {
       const step = Math.min(state.processStage, 2);
-      state.calculationEntries[step] = { product: ['', '', ''], remainder: null, validated: false };
+      state.calculationEntries[step] = createCalculationEntry();
       renderCalculationSteps();
     }
   });
