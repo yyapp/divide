@@ -1,0 +1,29 @@
+[      41ms] [INFO] [preview-bridge] v1.1.0 @ https://0xfouv65m4lqc78e.jitda.io/__preview-bridge.js:1
+[   53712ms] [WARNING] Estimating resolution as 1413 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   53718ms] [WARNING] Estimating resolution as 1413 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   53719ms] [WARNING] Estimating resolution as 1413 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   73049ms] [WARNING] Bottom=0, top=196, base=0, x=0 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   73050ms] [WARNING]  @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   73050ms] [WARNING] Total count=0 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   73050ms] [WARNING] Min=0.00 Really=0 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   73050ms] [WARNING] Lower quartile=0.00 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   73051ms] [WARNING] Median=0.00, ile(0.5)=0.00 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   73051ms] [WARNING] Upper quartile=0.00 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   73051ms] [WARNING] Max=0.00 Really=0 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   73051ms] [WARNING] Range=1 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   73052ms] [WARNING] Mean= 0.00 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   73052ms] [WARNING] SD= 0.00 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   74076ms] [WARNING] Bottom=0, top=196, base=0, x=0 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   74076ms] [WARNING]  @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   74076ms] [WARNING] Total count=0 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   74077ms] [WARNING] Min=0.00 Really=0 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   74077ms] [WARNING] Lower quartile=0.00 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   74077ms] [WARNING] Median=0.00, ile(0.5)=0.00 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   74077ms] [WARNING] Upper quartile=0.00 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   74078ms] [WARNING] Max=0.00 Really=0 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   74078ms] [WARNING] Range=1 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   74078ms] [WARNING] Mean= 0.00 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   74078ms] [WARNING] SD= 0.00 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[  113664ms] [INFO] [preview-bridge] v1.1.0 @ https://0xfouv65m4lqc78e.jitda.io/__preview-bridge.js:1
+[  116193ms] [INFO] [preview-bridge] v1.1.0 @ https://0xfouv65m4lqc78e.jitda.io/__preview-bridge.js:1
+[  164954ms] [INFO] [preview-bridge] v1.1.0 @ https://0xfouv65m4lqc78e.jitda.io/__preview-bridge.js:1

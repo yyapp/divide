@@ -42,16 +42,21 @@ const SAMPLE_RECORDS = [
   { label: '예시 03', completed: [], tools: ['수모형'], toolCounts: { '가리기': 0, '곱셈구구': 0, '수모형': 2 }, attempts: 3, hints: 2, helpedSolved: 0, stillStuck: 1, lastHelpResult: 'stuck', status: '도움 필요' },
 ];
 
+function createCalculationEntries() {
+  return Array.from({ length: 3 }, () => ({ product: ['', '', ''], remainder: null, validated: false }));
+}
+
 const state = {
   problems: TYPES.map((type) => ({ ...type, ...type.pool[Math.floor(Math.random() * type.pool.length)] })),
   problemIndex: 0,
   stage: 0,
+  processStage: 0,
   directMode: true,
   workMode: 'handwriting',
   solvedDigits: [null, null, null],
   directDigits: ['', '', ''],
   stepEntry: '',
-  calculationEntries: Array.from({ length: 3 }, () => ({ product: ['', '', ''], remainder: '' })),
+  calculationEntries: createCalculationEntries(),
   activeHelp: null,
   coverPreviewStage: null,
   coverTransition: false,
@@ -68,7 +73,9 @@ const state = {
   ocrWorkerPromise: null,
   ocrScriptPromise: null,
   ocrTimers: new Map(),
+  ocrBounds: new Map(),
   strokeTarget: null,
+  strokeBounds: null,
   applyingOcr: false,
   ocrRevision: 0,
 };
@@ -138,6 +145,29 @@ function quotientDigits(problem) {
   return String(problem.dividend / problem.divisor).padStart(3, '0').split('').map(Number);
 }
 
+function getQuotientDigit(index) {
+  const value = state.directMode ? state.directDigits[index] : state.solvedDigits[index];
+  return value === '' || value === null || value === undefined ? null : Number(value);
+}
+
+function getPartialDividend(index) {
+  const problem = getProblem();
+  const digits = String(problem.dividend).padStart(3, '0').split('').map(Number);
+  if (index === 0) return digits[0];
+  const previous = state.calculationEntries[index - 1];
+  return previous.validated ? previous.remainder * 10 + digits[index] : null;
+}
+
+function getProductColumns(index, digitCount) {
+  const group = index === 0 ? [0] : index === 1 ? [0, 1] : [1, 2];
+  return group.slice(-digitCount);
+}
+
+function resetCalculationsFrom(index) {
+  for (let step = index; step < 3; step += 1) state.calculationEntries[step] = { product: ['', '', ''], remainder: null, validated: false };
+  state.processStage = Math.min(state.processStage, index);
+}
+
 function currentDivisionValue(problem, targetStage = state.stage) {
   const digits = String(problem.dividend).padStart(3, '0').split('').map(Number);
   let remainder = 0;
@@ -202,11 +232,11 @@ function renderAnswerPreview() {
   const problem = getProblem();
   if (!problem) return;
   const shown = [0, 1, 2].map((index) => {
-    const value = state.directMode ? state.directDigits[index] : (index === state.stage ? state.stepEntry : state.solvedDigits[index]);
+    const value = state.directMode ? state.directDigits[index] : (state.solvedDigits[index] ?? (index === state.stage ? state.stepEntry : null));
     return value === null || value === undefined ? '' : String(value);
   });
   $('#verticalQuotient').innerHTML = shown.map((digit, index) => {
-    const editable = state.directMode || index === state.stage;
+    const editable = state.directMode || (index === state.stage && state.solvedDigits[index] === null);
     const label = `${PLACE_NAMES[index]} 자리 몫`;
     return `<input class="quotient-digit${index === state.stage && !state.directMode ? ' current-place' : ''}${digit === '' ? ' empty' : ''}" id="quotientDigit${index}" type="text" inputmode="numeric" autocomplete="off" maxlength="1" value="${digit}" aria-label="${label}" form="answerForm" data-quotient-index="${index}"${editable ? '' : ' disabled'}>`;
   }).join('');
@@ -248,31 +278,37 @@ function setWorkMode(mode) {
   $('#handwritingTab').setAttribute('aria-selected', String(handwriting));
   $('#numericTab').setAttribute('aria-selected', String(!handwriting));
   $('#workspaceHint').textContent = handwriting
-    ? '각 빈 숫자칸에 한 자리씩 쓰면 인식해 채워요. 틀리면 숫자 입력에서 고칠 수 있어요.'
-    : '각 자리에서 곱해 빼고 남은 수를 입력해보세요.';
+    ? '몫과 빼는 수를 각 칸에 쓰면 인식해요. 남은 수는 자동으로 계산해요.'
+    : '먼저 몫을 입력하면 곱해 빼기와 내려쓰기 칸이 순서대로 열려요.';
   $('#workModeLabel').textContent = handwriting ? '손글씨 풀이' : '숫자 풀이';
 }
 
 function renderCalculationSteps() {
   const problem = getProblem();
   if (!problem) return;
-  const digits = String(problem.dividend).padStart(3, '0').split('');
-  const visibleStages = state.stage + 1;
+  const visibleStages = Math.min(state.processStage + 1, 3);
   const rows = [];
   for (let step = 0; step < visibleStages; step += 1) {
     const entry = state.calculationEntries[step];
-    const productCells = entry.product.map((value, column) => {
-      const active = step === 0 ? column === 0 : step === 1 ? column < 2 : column > 0;
-      return active
-        ? `<input class="calc-digit-input product-digit" type="text" inputmode="numeric" autocomplete="off" maxlength="1" value="${value}" aria-label="곱해 뺄 수 ${PLACE_NAMES[step]} 단계 ${column + 1}" data-calc-step="${step}" data-calc-kind="product" data-calc-column="${column}">`
-        : '<span class="calc-digit-spacer"></span>';
+    const quotientDigit = getQuotientDigit(step);
+    if (quotientDigit === null && !entry.validated) continue;
+    const product = quotientDigit === null ? '' : String(problem.divisor * quotientDigit);
+    const productColumns = product ? getProductColumns(step, product.length) : [];
+    const productCells = [0, 1, 2].map((column) => {
+      if (!productColumns.includes(column)) return '<span class="calc-digit-spacer"></span>';
+      if (entry.validated) return `<span class="calc-digit-value">${entry.product[column]}</span>`;
+      return `<input class="calc-digit-input product-digit" type="text" inputmode="numeric" autocomplete="off" maxlength="1" value="${entry.product[column]}" aria-label="곱해 뺄 수 ${PLACE_NAMES[step]} 자리 ${column + 1}" data-calc-step="${step}" data-calc-kind="product" data-calc-column="${column}">`;
     }).join('');
-    const remainderCells = [0, 1, 2].map((column) => {
-      if (column === step) return `<input class="calc-digit-input remainder-digit" type="text" inputmode="numeric" autocomplete="off" maxlength="1" value="${entry.remainder}" aria-label="빼고 남은 수 ${PLACE_NAMES[step]} 단계" data-calc-step="${step}" data-calc-kind="remainder" data-calc-column="${column}">`;
-      if (column === step + 1 && step < 2) return `<span class="bring-down-cell"><span aria-hidden="true">↓</span><strong>${digits[column]}</strong></span>`;
-      return '<span class="calc-digit-spacer"></span>';
-    }).join('');
-    rows.push(`<div class="process-row subtract-row"><span class="process-sign">−</span><div class="calc-digit-grid">${productCells}</div></div><div class="process-row remainder-row"><span class="process-sign"></span><div class="calc-digit-grid">${remainderCells}</div></div>`);
+    if (!(entry.validated && quotientDigit === 0)) rows.push(`<div class="process-row subtract-row"><span class="process-sign">−</span><div class="calc-digit-grid">${productCells}</div></div>`);
+    if (entry.validated) {
+      const digits = String(problem.dividend).padStart(3, '0').split('');
+      const remainderCells = [0, 1, 2].map((column) => {
+        if (column === step && entry.remainder > 0) return `<span class="calc-digit-value">${entry.remainder}</span>`;
+        if (column === step + 1 && step < 2) return `<span class="bring-down-cell"><span aria-hidden="true">↓</span><strong>${digits[column]}</strong></span>`;
+        return '<span class="calc-digit-spacer"></span>';
+      }).join('');
+      rows.push(`<div class="process-row remainder-row"><span class="process-sign"></span><div class="calc-digit-grid">${remainderCells}</div></div>`);
+    }
   }
   $('#calculationSteps').innerHTML = rows.join('');
 }
@@ -283,20 +319,114 @@ function handleCalculationInput(event) {
   const step = Number(input.dataset.calcStep);
   const value = input.value.replace(/[^0-9]/g, '').slice(0, 1);
   input.value = value;
+  if (!state.applyingOcr && input.dataset.ocrFilled === 'true') clearHandwritingInk(input);
   if (!state.applyingOcr) input.removeAttribute('data-ocr-filled');
-  if (input.dataset.calcKind === 'remainder') {
-    state.calculationEntries[step].remainder = value;
-  } else {
-    state.calculationEntries[step].product[Number(input.dataset.calcColumn)] = value;
+  state.calculationEntries[step].product[Number(input.dataset.calcColumn)] = value;
+  tryCompleteCalculation(step);
+}
+
+function autoSkipZeroQuotients() {
+  let changed = false;
+  while (state.processStage < 3) {
+    const step = state.processStage;
+    const quotientDigit = getQuotientDigit(step);
+    const partial = getPartialDividend(step);
+    if (quotientDigit !== 0 || partial === null || partial >= getProblem().divisor) break;
+    state.calculationEntries[step] = { product: ['', '', ''], remainder: partial, validated: true };
+    state.processStage += 1;
+    changed = true;
   }
+  if (changed) renderCalculationSteps();
+}
+
+function completeCalculationStep(step, remainder) {
+  const entry = state.calculationEntries[step];
+  $$(`.calc-digit-input[data-calc-step="${step}"][data-ocr-filled="true"]`).forEach((input) => {
+    clearHandwritingInk(input);
+    input.removeAttribute('data-ocr-filled');
+  });
+  entry.validated = true;
+  entry.remainder = remainder;
+  state.processStage = Math.min(step + 1, 3);
+  if (state.pendingHelpResult && !state.directMode) {
+    state.record.helpedSolved += 1;
+    state.record.lastHelpResult = 'solved';
+    state.pendingHelpResult = false;
+  }
+  saveRecord();
+  if (!state.directMode) {
+    if (state.stage < 2) {
+      state.stage += 1;
+      state.stepEntry = '';
+      state.coverPreviewStage = null;
+      state.coverTransition = true;
+      state.modelSignature = '';
+      autoSkipZeroQuotients();
+      renderProblem();
+      answerFeedback.textContent = remainder === 0 ? '남은 수가 0이어서 다음 숫자를 내려왔어요.' : '남은 수에 다음 자리 숫자를 내려왔어요.';
+      $(`#quotientDigit${state.stage}`).focus();
+      setTimeout(() => {
+        state.coverTransition = false;
+        renderPlaceWindow();
+      }, 600);
+      return;
+    }
+    const current = getProblem();
+    state.record.completed.push(current.label);
+    state.record.activeType = current.label;
+    state.record.status = state.problemIndex === 2 ? '오늘 연습 완료' : '진행 중';
+    saveRecord();
+    renderCompletedProblem();
+    return;
+  }
+  autoSkipZeroQuotients();
+  renderCalculationSteps();
+  $('#workspaceHint').textContent = remainder === 0
+    ? '남은 수가 0이므로 다음 숫자를 내려와요.'
+    : '남은 수를 다음 자리 숫자와 이어서 계산해요.';
+}
+
+function tryCompleteCalculation(step) {
+  if (step !== state.processStage || step > 2) return;
+  const problem = getProblem();
+  const quotientDigit = getQuotientDigit(step);
+  const partial = getPartialDividend(step);
+  if (quotientDigit === null || partial === null) return;
+  if (quotientDigit === 0 && partial < problem.divisor) {
+    completeCalculationStep(step, partial);
+    return;
+  }
+  const expectedProduct = problem.divisor * quotientDigit;
+  const productText = String(expectedProduct);
+  const columns = getProductColumns(step, productText.length);
+  if (!columns.every((column) => state.calculationEntries[step].product[column] !== '')) return;
+  const enteredProduct = Number(columns.map((column) => state.calculationEntries[step].product[column]).join(''));
+  if (enteredProduct !== expectedProduct) {
+    $('#workspaceHint').textContent = '곱해 뺄 수를 다시 살펴봐요.';
+    return;
+  }
+  const remainder = partial - enteredProduct;
+  if (remainder < 0 || remainder >= problem.divisor) {
+    $('#workspaceHint').textContent = '빼고 남은 수는 나누는 수보다 작아야 해요.';
+    return;
+  }
+  completeCalculationStep(step, remainder);
 }
 
 function findHandwritingTarget(x, y) {
-  return $$('[data-quotient-index], [data-calc-step]').find((input) => {
+  const candidates = $$('[data-quotient-index], [data-calc-step]').filter((input) => {
     if (input.disabled || !input.getClientRects().length) return false;
+    return true;
+  }).map((input) => {
     const rect = input.getBoundingClientRect();
-    return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
-  }) || null;
+    const dx = Math.max(rect.left - x, 0, x - rect.right);
+    const dy = Math.max(rect.top - y, 0, y - rect.bottom);
+    return { input, rect, distance: Math.hypot(dx, dy) };
+  });
+  const target = candidates.find(({ rect }) => x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom);
+  if (target) return target.input;
+  const nearest = candidates.sort((a, b) => a.distance - b.distance)[0];
+  return nearest?.distance <= 18 ? nearest.input : null;
 }
 
 function handwritingTargetKey(target) {
@@ -338,35 +468,45 @@ async function getOcrWorker() {
   return state.ocrWorkerPromise;
 }
 
-function clearHandwritingCell(target) {
-  const canvasRect = scratchCanvas.getBoundingClientRect();
+function clearHandwritingInk(target) {
+  const canvasRect = $('#divisionBoard').getBoundingClientRect();
   const rect = target.getBoundingClientRect();
   const context = scratchCanvas.getContext('2d');
-  const padding = 4;
-  context.clearRect(rect.left - canvasRect.left - padding, rect.top - canvasRect.top - padding, rect.width + padding * 2, rect.height + padding * 2);
+  const padding = 12;
+  const previousBounds = state.ocrBounds.get(handwritingTargetKey(target));
+  const bounds = previousBounds || { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom };
+  context.clearRect(bounds.left - canvasRect.left - padding, bounds.top - canvasRect.top - padding, bounds.right - bounds.left + padding * 2, bounds.bottom - bounds.top + padding * 2);
+  state.ocrBounds.delete(handwritingTargetKey(target));
+}
+
+function clearHandwritingCell(target) {
+  clearHandwritingInk(target);
   target.value = '';
   target.removeAttribute('data-ocr-filled');
   if (target.matches('.quotient-digit')) {
     const index = Number(target.dataset.quotientIndex);
-    if (state.directMode) state.directDigits[index] = '';
-    else if (state.stage === index) state.stepEntry = '';
+    if (state.directMode) {
+      state.directDigits[index] = '';
+      resetCalculationsFrom(index);
+      renderCalculationSteps();
+    } else if (state.stage === index) state.stepEntry = '';
   } else {
     const step = Number(target.dataset.calcStep);
-    if (target.dataset.calcKind === 'remainder') state.calculationEntries[step].remainder = '';
-    else state.calculationEntries[step].product[Number(target.dataset.calcColumn)] = '';
+    state.calculationEntries[step].product[Number(target.dataset.calcColumn)] = '';
   }
 }
 
-function makeOcrCrop(target) {
+function makeOcrCrop(target, strokeBounds = null) {
   const canvasRect = scratchCanvas.getBoundingClientRect();
   const targetRect = target.getBoundingClientRect();
   const ratioX = scratchCanvas.width / canvasRect.width;
   const ratioY = scratchCanvas.height / canvasRect.height;
-  const padding = 5;
-  const left = Math.max(0, Math.floor((targetRect.left - canvasRect.left - padding) * ratioX));
-  const top = Math.max(0, Math.floor((targetRect.top - canvasRect.top - padding) * ratioY));
-  const right = Math.min(scratchCanvas.width, Math.ceil((targetRect.right - canvasRect.left + padding) * ratioX));
-  const bottom = Math.min(scratchCanvas.height, Math.ceil((targetRect.bottom - canvasRect.top + padding) * ratioY));
+  const source = strokeBounds || { left: targetRect.left, top: targetRect.top, right: targetRect.right, bottom: targetRect.bottom };
+  const padding = 10;
+  const left = Math.max(0, Math.floor((source.left - canvasRect.left - padding) * ratioX));
+  const top = Math.max(0, Math.floor((source.top - canvasRect.top - padding) * ratioY));
+  const right = Math.min(scratchCanvas.width, Math.ceil((source.right - canvasRect.left + padding) * ratioX));
+  const bottom = Math.min(scratchCanvas.height, Math.ceil((source.bottom - canvasRect.top + padding) * ratioY));
   const width = right - left;
   const height = bottom - top;
   const crop = document.createElement('canvas');
@@ -380,18 +520,44 @@ function makeOcrCrop(target) {
   return crop;
 }
 
-async function recognizeHandwriting(target, revision = state.ocrRevision) {
+function normalizeOcrDigit(character) {
+  return ({ O: '0', o: '0', Q: '0', I: '1', l: '1', '|': '1', S: '5', s: '5', Z: '2', z: '2', B: '8', A: '4', a: '4' }[character] || (/^[0-9]$/.test(character) ? character : ''));
+}
+
+function pickOcrDigit(data) {
+  const symbols = (data.symbols || []).map((symbol) => {
+    const digit = normalizeOcrDigit(symbol.text);
+    const width = symbol.bbox?.x1 - symbol.bbox?.x0 || 0;
+    const height = symbol.bbox?.y1 - symbol.bbox?.y0 || 0;
+    return { digit, area: width * height, confidence: symbol.confidence || 0 };
+  }).filter((symbol) => symbol.digit);
+  if (symbols.length > 1) {
+    symbols.sort((a, b) => b.area - a.area || b.confidence - a.confidence);
+    if (symbols[0].area > symbols[1].area * 1.1) return symbols[0].digit;
+  }
+  if (symbols.length) return symbols.sort((a, b) => b.confidence - a.confidence)[0].digit;
+  const characters = data.text.replace(/\s/g, '').split('').map(normalizeOcrDigit).filter(Boolean);
+  return characters.at(-1) || '';
+}
+
+async function recognizeHandwriting(target, revision = state.ocrRevision, strokeBounds = null) {
   if (!target.isConnected || state.workMode !== 'handwriting') return;
   try {
     $('#workspaceHint').textContent = '손글씨 숫자를 읽고 있어요.';
     const worker = await getOcrWorker();
     if (!target.isConnected || state.workMode !== 'handwriting' || revision !== state.ocrRevision) return;
-    const { data } = await worker.recognize(makeOcrCrop(target));
-    if (!target.isConnected || state.workMode !== 'handwriting' || revision !== state.ocrRevision) return;
-    const character = data.text.replace(/\s/g, '').match(/[0-9OoIl|SBZAa]/)?.[0];
-    const digit = character ? ({ O: '0', o: '0', Q: '0', I: '1', l: '1', '|': '1', S: '5', s: '5', Z: '2', z: '2', B: '8', A: '4', a: '4' }[character] || character) : '';
+    const crop = makeOcrCrop(target, strokeBounds);
+    let { data } = await worker.recognize(crop);
+    let digit = pickOcrDigit(data);
     if (!digit || data.confidence < 12) {
-      $('#workspaceHint').textContent = '숫자를 읽지 못했어요. 조금 크게 쓰거나 숫자 입력 모드를 이용해 주세요.';
+      await worker.setParameters({ tessedit_pageseg_mode: '8' });
+      ({ data } = await worker.recognize(crop));
+      digit = pickOcrDigit(data);
+      await worker.setParameters({ tessedit_pageseg_mode: '3' });
+    }
+    if (!target.isConnected || state.workMode !== 'handwriting' || revision !== state.ocrRevision) return;
+    if (!digit || data.confidence < 12) {
+      $('#workspaceHint').textContent = '숫자를 구분하지 못했어요. 한 칸에 하나씩 또렷하게 쓰거나 숫자 입력에서 고쳐 주세요.';
       return;
     }
     target.value = digit;
@@ -399,7 +565,10 @@ async function recognizeHandwriting(target, revision = state.ocrRevision) {
     state.applyingOcr = true;
     target.dispatchEvent(new Event('input', { bubbles: true }));
     state.applyingOcr = false;
-    $('#workspaceHint').textContent = `숫자 ${digit}를 인식해 입력했어요. 틀리면 다시 쓰거나 숫자 입력 모드에서 고칠 수 있어요.`;
+    const feedback = $('#workspaceHint').textContent;
+    if (!feedback.includes('다시 살펴봐요') && !feedback.includes('나누는 수보다 작아야')) {
+      $('#workspaceHint').textContent = `숫자 ${digit}를 인식해 입력했어요. 틀리면 다시 쓰거나 숫자 입력 모드에서 고칠 수 있어요.`;
+    }
   } catch {
     state.applyingOcr = false;
     $('#workspaceHint').textContent = '손글씨 인식을 불러오지 못했어요. 숫자 입력 모드를 이용해 주세요.';
@@ -566,41 +735,31 @@ function submitStep() {
     answerFeedback.textContent = '괜찮아요. 지금 보이는 자리와 도움 도구를 다시 살펴봐요.';
     answerFeedback.classList.add('error');
     saveRecord();
+    const quotientInput = $(`#quotientDigit${state.stage}`);
+    if (quotientInput?.dataset.ocrFilled === 'true') {
+      clearHandwritingInk(quotientInput);
+      quotientInput.removeAttribute('data-ocr-filled');
+    }
     state.stepEntry = '';
     renderAnswerPreview();
     $(`#quotientDigit${state.stage}`).focus();
     return;
   }
-  answerFeedback.textContent = '좋아요. 계산 원리를 따라 잘 풀었어요.';
+  answerFeedback.textContent = '몫을 확인했어요. 이제 곱해서 빼 보세요.';
   answerFeedback.classList.remove('error');
+  const quotientInput = $(`#quotientDigit${state.stage}`);
+  if (quotientInput?.dataset.ocrFilled === 'true') {
+    clearHandwritingInk(quotientInput);
+    quotientInput.removeAttribute('data-ocr-filled');
+  }
   state.solvedDigits[state.stage] = Number(entered);
   state.stepEntry = '';
-  if (state.pendingHelpResult) {
-    state.record.helpedSolved += 1;
-    state.record.lastHelpResult = 'solved';
-    state.pendingHelpResult = false;
-  }
   saveRecord();
-  const current = getProblem();
-  if (state.stage < 2) {
-    state.stage += 1;
-    state.coverPreviewStage = null;
-    state.coverTransition = true;
-    state.modelSignature = '';
-    renderProblem();
-    answerFeedback.textContent = '좋아요. 가림판이 다음 자리로 옮겨갔어요.';
-    $(`#quotientDigit${state.stage}`).focus();
-    setTimeout(() => {
-      state.coverTransition = false;
-      renderPlaceWindow();
-    }, 600);
-    return;
-  }
-  state.record.completed.push(current.label);
-  state.record.activeType = current.label;
-  state.record.status = state.problemIndex === 2 ? '오늘 연습 완료' : '진행 중';
-  saveRecord();
-  renderCompletedProblem();
+  renderAnswerPreview();
+  renderCalculationSteps();
+  const quotientDigit = Number(entered);
+  if (quotientDigit === 0) tryCompleteCalculation(state.stage);
+  else $('.product-digit')?.focus();
 }
 
 function submitDirect() {
@@ -653,10 +812,15 @@ function handleQuotientInput(event) {
   const index = Number(input.dataset.quotientIndex);
   const value = input.value.replace(/[^0-9]/g, '').slice(0, 1);
   input.value = value;
+  if (!state.applyingOcr && input.dataset.ocrFilled === 'true') clearHandwritingInk(input);
   if (!state.applyingOcr) input.removeAttribute('data-ocr-filled');
   if (state.transitioning) return;
   if (state.directMode) {
+    const previous = state.directDigits[index];
     state.directDigits[index] = value;
+    if (previous !== '' && previous !== value) resetCalculationsFrom(index);
+    renderCalculationSteps();
+    autoSkipZeroQuotients();
     if (value && index < 2) $(`#quotientDigit${index + 1}`).focus();
   } else if (index === state.stage) {
     state.stepEntry = value;
@@ -782,10 +946,13 @@ function clearWorkspaces() {
   const context = scratchCanvas.getContext('2d');
   context.clearRect(0, 0, scratchCanvas.width, scratchCanvas.height);
   state.ocrRevision += 1;
-  state.calculationEntries = Array.from({ length: 3 }, () => ({ product: ['', '', ''], remainder: '' }));
+  state.calculationEntries = createCalculationEntries();
+  state.processStage = 0;
   state.ocrTimers.forEach(clearTimeout);
   state.ocrTimers.clear();
+  state.ocrBounds.clear();
   state.strokeTarget = null;
+  state.strokeBounds = null;
   renderCalculationSteps();
 }
 
@@ -795,12 +962,19 @@ function clearRecognizedInputs() {
     input.removeAttribute('data-ocr-filled');
     if (input.matches('.quotient-digit')) {
       const index = Number(input.dataset.quotientIndex);
-      if (state.directMode) state.directDigits[index] = '';
-      else if (state.stage === index) state.stepEntry = '';
+      if (state.directMode) {
+        state.directDigits[index] = '';
+        resetCalculationsFrom(index);
+      } else {
+        state.solvedDigits[index] = null;
+        state.stepEntry = '';
+        state.stage = Math.min(state.stage, index);
+        resetCalculationsFrom(index);
+      }
     } else {
       const step = Number(input.dataset.calcStep);
-      if (input.dataset.calcKind === 'remainder') state.calculationEntries[step].remainder = '';
-      else state.calculationEntries[step].product[Number(input.dataset.calcColumn)] = '';
+      state.calculationEntries[step] = { product: ['', '', ''], remainder: null, validated: false };
+      state.processStage = Math.min(state.processStage, step);
     }
   });
   renderAnswerPreview();
@@ -841,6 +1015,13 @@ function initCanvas() {
       const key = handwritingTargetKey(state.strokeTarget);
       clearTimeout(state.ocrTimers.get(key));
       if (state.strokeTarget.dataset.ocrFilled === 'true') clearHandwritingCell(state.strokeTarget);
+      const existing = state.ocrBounds.get(key);
+      state.strokeBounds = existing
+        ? { ...existing }
+        : { left: event.clientX, top: event.clientY, right: event.clientX, bottom: event.clientY };
+      state.ocrBounds.set(key, state.strokeBounds);
+    } else {
+      state.strokeBounds = null;
     }
     scratchCanvas.setPointerCapture(event.pointerId);
     context.beginPath();
@@ -855,20 +1036,28 @@ function initCanvas() {
     context.moveTo(previous.x, previous.y);
     context.lineTo(next.x, next.y);
     context.stroke();
+    if (state.strokeBounds) {
+      state.strokeBounds.left = Math.min(state.strokeBounds.left, event.clientX);
+      state.strokeBounds.top = Math.min(state.strokeBounds.top, event.clientY);
+      state.strokeBounds.right = Math.max(state.strokeBounds.right, event.clientX);
+      state.strokeBounds.bottom = Math.max(state.strokeBounds.bottom, event.clientY);
+    }
     previous = next;
   });
   const stop = (recognize) => {
     drawing = false;
     previous = null;
     const target = state.strokeTarget;
+    const bounds = target ? state.ocrBounds.get(handwritingTargetKey(target)) : null;
     state.strokeTarget = null;
+    state.strokeBounds = null;
     if (!recognize || !target) return;
     const key = handwritingTargetKey(target);
     const revision = state.ocrRevision;
     clearTimeout(state.ocrTimers.get(key));
     state.ocrTimers.set(key, setTimeout(() => {
       state.ocrTimers.delete(key);
-      recognizeHandwriting(target, revision);
+      recognizeHandwriting(target, revision, bounds);
     }, 500));
   };
   scratchCanvas.addEventListener('pointerup', () => stop(true));
@@ -878,12 +1067,16 @@ function initCanvas() {
       state.ocrRevision += 1;
       state.ocrTimers.forEach((timer) => clearTimeout(timer));
       state.ocrTimers.clear();
+      state.ocrBounds.clear();
+      state.strokeTarget = null;
+      state.strokeBounds = null;
       context.clearRect(0, 0, scratchCanvas.width, scratchCanvas.height);
       clearRecognizedInputs();
-      $('#workspaceHint').textContent = '각 빈 숫자칸에 한 자리씩 쓰면 인식해 채워요. 틀리면 숫자 입력에서 고칠 수 있어요.';
+      $('#workspaceHint').textContent = '몫과 빼는 수를 손글씨로 쓰면 인식하고, 남은 수를 계산해요.';
     }
     else {
-      state.calculationEntries = Array.from({ length: 3 }, () => ({ product: ['', '', ''], remainder: '' }));
+      const step = Math.min(state.processStage, 2);
+      state.calculationEntries[step] = { product: ['', '', ''], remainder: null, validated: false };
       renderCalculationSteps();
     }
   });

@@ -1,0 +1,4 @@
+[      28ms] [INFO] [preview-bridge] v1.1.0 @ https://0xfouv65m4lqc78e.jitda.io/__preview-bridge.js:1
+[   27613ms] [WARNING] Estimating resolution as 1763 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   27666ms] [WARNING] Estimating resolution as 1763 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
+[   27668ms] [WARNING] Estimating resolution as 1763 @ https://cdn.jsdelivr.net/npm/tesseract.js-core@v5.1.1/tesseract-core-simd-lstm.wasm.js:30
