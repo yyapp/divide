@@ -46,7 +46,7 @@ const state = {
   problems: TYPES.map((type) => ({ ...type, ...type.pool[Math.floor(Math.random() * type.pool.length)] })),
   problemIndex: 0,
   stage: 0,
-  directMode: false,
+  directMode: true,
   solvedDigits: [null, null, null],
   directDigits: ['', '', ''],
   stepEntry: '',
@@ -148,8 +148,13 @@ function renderProblem() {
   ];
   $('#stageDescription').textContent = prompts[state.stage];
   $('#maskLabel').textContent = state.stage < 2 ? '다음 자리는 가림판 뒤에 있어요' : '모든 자리를 살펴보고 있어요';
-  $('#longDivisionLabel').textContent = state.directMode ? '몫 칸에 세 자리 답을 써 보세요' : '나눗셈 세로셈';
+  $('#longDivisionLabel').textContent = state.directMode ? '세 자리 문제를 보고 몫을 입력하세요' : '한 자리씩 나누어 몫을 입력하세요';
   $('.problem-card', studentView).classList.toggle('direct-mode', state.directMode);
+  $('#toggleDirectMode').setAttribute('aria-expanded', String(!state.directMode));
+  $('#toggleDirectMode').innerHTML = state.directMode
+    ? '막히면 한 자리씩 단계별로 풀어보기 <span aria-hidden="true">→</span>'
+    : '문제 전체를 보고 몫을 한 번에 입력하기 <span aria-hidden="true">→</span>';
+  $('#checkAnswerButton').innerHTML = state.directMode ? '정답 확인 <span aria-hidden="true">↗</span>' : '확인하기 <span aria-hidden="true">↗</span>';
   renderPlaceWindow();
   renderVerticalDivision();
   renderAnswerPreview();
@@ -189,7 +194,7 @@ function renderAnswerPreview() {
   $('#verticalQuotient').innerHTML = shown.map((digit, index) => {
     const editable = state.directMode || index === state.stage;
     const label = `${PLACE_NAMES[index]} 자리 몫`;
-    return `<input class="quotient-digit${index === state.stage && !state.directMode ? ' current-place' : ''}${!digit ? ' empty' : ''}" id="quotientDigit${index}" type="text" inputmode="numeric" autocomplete="off" maxlength="1" value="${digit}" placeholder="?" aria-label="${label}" form="answerForm" data-quotient-index="${index}"${editable ? '' : ' disabled'}>`;
+    return `<input class="quotient-digit${index === state.stage && !state.directMode ? ' current-place' : ''}${digit === '' ? ' empty' : ''}" id="quotientDigit${index}" type="text" inputmode="numeric" autocomplete="off" maxlength="1" value="${digit}" aria-label="${label}" form="answerForm" data-quotient-index="${index}"${editable ? '' : ' disabled'}>`;
   }).join('');
   $('#verticalQuotient').setAttribute('aria-label', '몫 입력 칸');
 }
@@ -200,12 +205,12 @@ function setInputMode(direct) {
     state.directDigits = state.solvedDigits.map((digit) => digit === null ? '' : String(digit));
   }
   $('.problem-card', studentView).classList.toggle('direct-mode', direct);
-  $('#longDivisionLabel').textContent = direct ? '몫 칸에 세 자리 답을 써 보세요' : '나눗셈 세로셈';
+  $('#longDivisionLabel').textContent = direct ? '세 자리 문제를 보고 몫을 입력하세요' : '한 자리씩 나누어 몫을 입력하세요';
   const toggle = $('#toggleDirectMode');
-  toggle.setAttribute('aria-expanded', String(direct));
+  toggle.setAttribute('aria-expanded', String(!direct));
   toggle.innerHTML = direct
-    ? '한 자리씩 단계별로 풀기 <span aria-hidden="true">→</span>'
-    : '정답을 안다면 몫을 한 번에 입력해도 괜찮아요 <span aria-hidden="true">→</span>';
+    ? '막히면 한 자리씩 단계별로 풀어보기 <span aria-hidden="true">→</span>'
+    : '문제 전체를 보고 몫을 한 번에 입력하기 <span aria-hidden="true">→</span>';
   $('#checkAnswerButton').innerHTML = direct ? '정답 확인 <span aria-hidden="true">↗</span>' : '확인하기 <span aria-hidden="true">↗</span>';
   renderVerticalDivision();
   renderAnswerPreview();
@@ -495,8 +500,8 @@ function renderCompletedProblem() {
       state.stepEntry = '';
       state.activeHelp = null;
     }
-    state.directMode = false;
-    setInputMode(false);
+    state.directMode = true;
+    setInputMode(true);
     problemCard.hidden = false;
     scratchCard.hidden = false;
     doneCard.remove();
