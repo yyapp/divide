@@ -243,7 +243,7 @@ function renderCalculationSteps() {
   const problem = getProblem();
   if (!problem) return;
   const digits = String(problem.dividend).padStart(3, '0').split('');
-  const visibleSteps = state.directMode ? 3 : state.stage + 1;
+  const visibleSteps = state.stage + 1;
   $('#calculationSteps').innerHTML = [0, 1, 2].map((index) => {
     const entry = state.calculationEntries[index];
     const cells = ['', '', ''];
