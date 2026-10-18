@@ -49,6 +49,8 @@ const state = {
   problems: TYPES.map((type) => ({ ...type, ...type.pool[Math.floor(Math.random() * type.pool.length)] })),
   problemIndex: 0,
   stage: 0,
+  directMode: false,
+  solvedDigits: [null, null, null],
   activeHelp: null,
   coverPreviewStage: null,
   coverTransition: false,
@@ -66,6 +68,9 @@ const teacherView = $('#teacherView');
 const stepForm = $('#stepForm');
 const digitAnswer = $('#digitAnswer');
 const answerFeedback = $('#answerFeedback');
+const directForm = $('#directForm');
+const directAnswer = $('#directAnswer');
+const directFeedback = $('#directFeedback');
 const helpContent = $('#helpContent');
 const scratchCanvas = $('#scratchCanvas');
 
@@ -90,6 +95,7 @@ function markActivity() {
       label: nextPracticeLabel(),
       startedAt: new Date().toISOString(),
       completed: [],
+      directTypes: [],
       tools: [],
       toolCounts: { '가리기': 0, '곱셈구구': 0, '수모형': 0 },
       attempts: 0,
@@ -139,12 +145,10 @@ function renderProblem() {
   if (!problem) return;
   $('#problemType').textContent = problem.label;
   $('#pathCount').textContent = `${String(state.problemIndex + 1).padStart(2, '0')} / 03`;
-  $('#dividendDisplay').textContent = problem.dividend;
-  $('#divisorDisplay').textContent = problem.divisor;
+  $('#longDivisor').textContent = problem.divisor;
   $('#stepCounter').textContent = `${state.stage + 1} / 3 단계`;
   $('#stageNumber').textContent = `0${state.stage + 1}`;
   $('#stageTitle').textContent = `${PLACE_NAMES[state.stage]} 자리부터 살펴봐요`;
-  const placeValue = currentDivisionValue(problem);
   const prompts = [
     '백의 자리 수를 나누면 몫이 몇일까요?',
     '남은 수와 십의 자리 수를 이어서 살펴봐요.',
@@ -153,13 +157,28 @@ function renderProblem() {
   $('#stageDescription').textContent = prompts[state.stage];
   $('#answerLabel').textContent = `${PLACE_NAMES[state.stage]} 자리 몫을 써 보세요`;
   $('#maskLabel').textContent = state.stage < 2 ? '다음 자리는 가림판 뒤에 있어요' : '모든 자리를 살펴보고 있어요';
+  $('#stepCounter').textContent = state.directMode ? '정답 바로 입력' : `${state.stage + 1} / 3 단계`;
+  $('.problem-card', studentView).classList.toggle('direct-mode', state.directMode);
+  stepForm.hidden = state.directMode;
+  directForm.hidden = !state.directMode;
   renderPlaceWindow();
+  renderVerticalDivision();
   renderAnswerPreview();
   renderProgress();
   digitAnswer.value = '';
   answerFeedback.textContent = '';
   answerFeedback.classList.remove('error');
+  directFeedback.textContent = '';
+  directFeedback.classList.remove('error');
   if (state.activeHelp) renderHelp();
+}
+
+function renderVerticalDivision() {
+  const problem = getProblem();
+  if (!problem) return;
+  const digits = String(problem.dividend).padStart(3, '0').split('');
+  const visibleThrough = state.directMode ? 2 : state.stage;
+  $('#verticalDividend').innerHTML = digits.map((digit, index) => `<span class="division-digit${index === state.stage && !state.directMode ? ' current-place' : ''}${index > visibleThrough ? ' masked' : ''}">${digit}</span>`).join('');
 }
 
 function renderPlaceWindow() {
@@ -178,9 +197,27 @@ function renderPlaceWindow() {
 function renderAnswerPreview() {
   const problem = getProblem();
   if (!problem) return;
-  const shown = quotientDigits(problem).map((_, index) => index < state.stage ? '•' : '?').join('');
-  $('#answerPreview').textContent = shown;
-  $('#answerPreview').setAttribute('aria-label', `몫 ${shown.split('').join(' ')}`);
+  const directDigits = state.directMode ? directAnswer.value : '';
+  const shown = [0, 1, 2].map((index) => directDigits[index] || state.solvedDigits[index] || '');
+  $('#verticalQuotient').innerHTML = shown.map((digit, index) => `<span class="quotient-digit${index === state.stage && !state.directMode ? ' current-place' : ''}${!digit ? ' empty' : ''}">${digit || '?'}</span>`).join('');
+  $('#verticalQuotient').setAttribute('aria-label', `몫 ${shown.map((digit) => digit || '미입력').join(' ')}`);
+}
+
+function setInputMode(direct) {
+  state.directMode = direct;
+  $('.problem-card', studentView).classList.toggle('direct-mode', direct);
+  stepForm.hidden = direct;
+  directForm.hidden = !direct;
+  $('#stepCounter').textContent = direct ? '정답 바로 입력' : `${state.stage + 1} / 3 단계`;
+  const toggle = $('#toggleDirectMode');
+  toggle.setAttribute('aria-expanded', String(direct));
+  toggle.innerHTML = direct
+    ? '한 자리씩 단계별로 풀기 <span aria-hidden="true">→</span>'
+    : '정답을 안다면 몫을 한 번에 입력해도 괜찮아요 <span aria-hidden="true">→</span>';
+  renderVerticalDivision();
+  renderAnswerPreview();
+  if (direct) directAnswer.focus();
+  else digitAnswer.focus();
 }
 
 function renderProgress() {
@@ -365,6 +402,7 @@ function submitStep(event) {
   }
   answerFeedback.textContent = '좋아요. 계산 원리를 따라 잘 풀었어요.';
   answerFeedback.classList.remove('error');
+  state.solvedDigits[state.stage] = Number(entered);
   if (state.pendingHelpResult) {
     state.record.helpedSolved += 1;
     state.record.lastHelpResult = 'solved';
@@ -392,6 +430,40 @@ function submitStep(event) {
   renderCompletedProblem();
 }
 
+function submitDirect(event) {
+  event.preventDefault();
+  const problem = getProblem();
+  const entered = directAnswer.value.trim();
+  if (!/^\d{3}$/.test(entered)) {
+    directFeedback.textContent = '몫 세 자리를 모두 입력해 주세요.';
+    directFeedback.classList.add('error');
+    directAnswer.focus();
+    return;
+  }
+  markActivity();
+  state.record.attempts += 1;
+  if (entered !== String(problem.dividend / problem.divisor)) {
+    directFeedback.textContent = '아직 맞지 않아요. 다시 계산하거나 한 자리씩 풀어도 괜찮아요.';
+    directFeedback.classList.add('error');
+    saveRecord();
+    directAnswer.select();
+    return;
+  }
+  const current = getProblem();
+  state.record.completed.push(current.label);
+  state.record.directTypes.push(current.label);
+  state.record.activeType = current.label;
+  state.record.status = state.problemIndex === 2 ? '오늘 연습 완료' : '진행 중';
+  if (state.pendingHelpResult) {
+    state.record.helpedSolved += 1;
+    state.record.lastHelpResult = 'solved';
+    state.pendingHelpResult = false;
+  }
+  state.solvedDigits = entered.split('').map(Number);
+  saveRecord();
+  renderCompletedProblem();
+}
+
 function renderCompletedProblem() {
   const problemCard = $('.problem-card', studentView);
   const scratchCard = $('.scratch-card', studentView);
@@ -412,6 +484,7 @@ function renderCompletedProblem() {
       state.problems = TYPES.map((type) => ({ ...type, ...type.pool[Math.floor(Math.random() * type.pool.length)] }));
       state.problemIndex = 0;
       state.stage = 0;
+      state.solvedDigits = [null, null, null];
       state.activeHelp = null;
       state.record = null;
       state.pendingHelpResult = false;
@@ -419,8 +492,12 @@ function renderCompletedProblem() {
     } else {
       state.problemIndex += 1;
       state.stage = 0;
+      state.solvedDigits = [null, null, null];
       state.activeHelp = null;
     }
+    state.directMode = false;
+    directAnswer.value = '';
+    setInputMode(false);
     problemCard.hidden = false;
     scratchCard.hidden = false;
     doneCard.remove();
@@ -481,7 +558,7 @@ function renderToolUsage(records) {
 function renderRecords(records) {
   $('#recordsBody').innerHTML = records.length ? records.slice(0, 8).map((record) => {
     const tools = record.tools.length ? record.tools.join(' · ') : '아직 없음';
-    const completed = record.completed.length ? record.completed.map((type) => type.replace(' 유형', '')).join(' · ') : '아직 없음';
+    const completed = record.completed.length ? record.completed.map((type) => `${type.replace(' 유형', '')}${record.directTypes?.includes(type) ? ' (바로 입력)' : ''}`).join(' · ') : '아직 없음';
     const status = getRecordView(record);
     const className = status === '도움 필요' ? 'stuck' : status === '진행 중' ? 'active' : '';
     return `<tr><td><span class="student-id">${record.label}</span></td><td>${completed}</td><td><span class="record-tools">${tools}</span></td><td>${record.attempts}회</td><td><span class="state-pill ${className}">${status}</span></td></tr>`;
@@ -554,6 +631,8 @@ function init() {
   const now = new Date();
   $('#todayDate').textContent = new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' }).format(now);
   stepForm.addEventListener('submit', submitStep);
+  directForm.addEventListener('submit', submitDirect);
+  $('#toggleDirectMode').addEventListener('click', () => setInputMode(!state.directMode));
   $$('.help-tab').forEach((tab) => tab.addEventListener('click', () => selectHelp(tab.dataset.help)));
   $$('[data-help-result]').forEach((button) => button.addEventListener('click', () => setHelpResult(button.dataset.helpResult)));
   $('#studentNav').addEventListener('click', () => setView('student'));
@@ -562,6 +641,12 @@ function init() {
     digitAnswer.value = digitAnswer.value.replace(/[^0-9]/g, '').slice(0, 1);
     answerFeedback.textContent = '';
     answerFeedback.classList.remove('error');
+  });
+  directAnswer.addEventListener('input', () => {
+    directAnswer.value = directAnswer.value.replace(/[^0-9]/g, '').slice(0, 3);
+    directFeedback.textContent = '';
+    directFeedback.classList.remove('error');
+    renderAnswerPreview();
   });
   renderProblem();
   renderHelp();
