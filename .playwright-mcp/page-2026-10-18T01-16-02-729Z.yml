@@ -1,0 +1,137 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - link "차근차근 나눗셈 홈" [ref=e4] [cursor=pointer]:
+        - /url: "#student"
+        - img [ref=e6]
+        - generic [ref=e10]:
+          - strong [ref=e11]: 차근차근
+          - generic [ref=e12]: 나눗셈 연습실
+      - navigation "주요 메뉴" [ref=e13]:
+        - button "학생 풀이" [ref=e14] [cursor=pointer]
+        - button "교사 대시보드" [ref=e15] [cursor=pointer]
+      - generic [ref=e17]: 나
+    - main [ref=e18]:
+      - generic [ref=e20]:
+        - paragraph [ref=e21]: 오늘의 연습 · 3문제
+        - heading "천천히 나누어도 괜찮아요." [level=1] [ref=e23]:
+          - text: 천천히 나누어도
+          - text: 괜찮아요.
+        - paragraph [ref=e24]: 한 자리씩 살펴보며 나눗셈의 원리를 찾아봐요.
+      - region "나눗셈 연습 공간" [ref=e25]:
+        - complementary [ref=e26]:
+          - generic [ref=e27]:
+            - generic [ref=e28]: TODAY'S PATH
+            - generic [ref=e29]: 01 / 03
+          - generic "연습 진행 상황" [ref=e30]:
+            - list [ref=e32]:
+              - listitem [ref=e33]:
+                - generic [ref=e34]: "1"
+                - generic [ref=e35]:
+                  - strong [ref=e36]: 첫 번째 문제
+                  - generic [ref=e37]: 오늘의 연습
+              - listitem [ref=e38]:
+                - generic [ref=e39]: "2"
+                - generic [ref=e40]:
+                  - strong [ref=e41]: 두 번째 문제
+                  - generic [ref=e42]: 오늘의 연습
+              - listitem [ref=e43]:
+                - generic [ref=e44]: "3"
+                - generic [ref=e45]:
+                  - strong [ref=e46]: 세 번째 문제
+                  - generic [ref=e47]: 오늘의 연습
+        - generic [ref=e48]:
+          - generic [ref=e49]:
+            - generic [ref=e50]: 문제 01 / 03
+            - generic [ref=e51]: 1 / 3 단계
+          - article [ref=e52]:
+            - generic [ref=e53]:
+              - generic [ref=e54]: 오늘의 문제
+              - generic [ref=e55]:
+                - img [ref=e56]
+                - text: 무작위 문제
+            - generic "세로셈 나눗셈 문제" [ref=e58]:
+              - generic [ref=e59]: 나눗셈 세로셈
+              - generic [ref=e60]:
+                - generic [ref=e61]: "3"
+                - generic [ref=e62]:
+                  - generic [ref=e63]:
+                    - generic [ref=e64]: 몫
+                    - generic "몫 입력 칸" [ref=e65]:
+                      - textbox "백의 자리 몫" [ref=e66]:
+                        - /placeholder: "?"
+                      - textbox "십의 자리 몫" [disabled] [ref=e67]:
+                        - /placeholder: "?"
+                      - textbox "일의 자리 몫" [disabled] [ref=e68]:
+                        - /placeholder: "?"
+                  - generic [ref=e70]:
+                    - generic [ref=e71]: "6"
+                    - generic [ref=e72]: "3"
+                    - generic [ref=e73]: "9"
+            - generic [ref=e75]:
+              - generic [ref=e76]: "01"
+              - generic [ref=e77]:
+                - strong [ref=e78]: 백의 자리부터 살펴봐요
+                - paragraph [ref=e79]: 백의 자리 수를 나누면 몫이 몇일까요?
+            - generic "현재 계산할 자리" [ref=e80]:
+              - generic [ref=e81]: 지금 보는 자리
+              - generic [ref=e82]:
+                - generic [ref=e83]:
+                  - generic "백의 자리 6" [ref=e84]: "6"
+                  - generic [ref=e85]: 백의 자리
+                - generic [ref=e86]:
+                  - generic "십의 자리 가림" [ref=e87]: "3"
+                  - generic [ref=e88]: 십의 자리
+                - generic [ref=e89]:
+                  - generic "일의 자리 가림" [ref=e90]: "9"
+                  - generic [ref=e91]: 일의 자리
+              - generic [ref=e92]: 다음 자리는 가림판 뒤에 있어요
+            - generic [ref=e93]:
+              - button "확인하기" [ref=e94] [cursor=pointer]:
+                - text: 확인하기
+                - generic [ref=e95]: ↗
+              - paragraph [ref=e96]
+            - button "정답을 안다면 몫을 한 번에 입력해도 괜찮아요" [ref=e97] [cursor=pointer]:
+              - text: 정답을 안다면 몫을 한 번에 입력해도 괜찮아요
+              - generic [ref=e98]: →
+          - region "손글씨 풀이 공간" [ref=e99]:
+            - generic [ref=e100]:
+              - generic [ref=e101]:
+                - text: 나의 풀이 공간
+                - paragraph [ref=e102]: 손가락이나 마우스로 자유롭게 써 보세요.
+              - button "지우기" [ref=e103] [cursor=pointer]:
+                - img [ref=e104]
+                - text: 지우기
+            - generic "손글씨로 계산 과정을 적는 공간" [ref=e106]
+            - generic [ref=e107]:
+              - generic [ref=e108]: 손글씨 풀이
+              - generic [ref=e110]: 풀이 흔적은 이 기기에 저장되지 않아요
+        - complementary "단계별 도움" [ref=e111]:
+          - generic [ref=e112]:
+            - generic [ref=e113]:
+              - text: 필요할 때 꺼내 쓰는
+              - heading "도움 도구" [level=2] [ref=e114]
+            - img [ref=e116]
+          - paragraph [ref=e119]: 현재 단계에 필요한 도구를 골라보세요.
+          - tablist "도움 도구 선택" [ref=e120]:
+            - tab "가리기" [ref=e121] [cursor=pointer]:
+              - img [ref=e123]
+              - generic [ref=e126]: 가리기
+            - tab "곱셈구구" [ref=e127] [cursor=pointer]:
+              - img [ref=e129]
+              - generic [ref=e132]: 곱셈구구
+            - tab "수모형" [ref=e133] [cursor=pointer]:
+              - img [ref=e135]
+              - generic [ref=e140]: 수모형
+          - tabpanel [ref=e141]:
+            - generic [ref=e142]:
+              - generic [ref=e143]: "?"
+              - heading "막히는 순간에 골라보세요" [level=3] [ref=e144]
+              - paragraph [ref=e145]: 도움을 여는 것도 중요한 학습 과정이에요. 정답을 알려주지 않고, 지금 필요한 실마리를 보여줄게요.
+          - generic [ref=e146]:
+            - generic [ref=e147]: "?"
+            - generic [ref=e148]: 정답 대신, 생각의 실마리를 찾아요.
+      - generic [ref=e149]:
+        - generic [ref=e150]: 차근차근 나눗셈 연습실
+        - generic [ref=e151]: 한 단계씩, 내 힘으로.
+  - status

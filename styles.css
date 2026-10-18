@@ -82,6 +82,7 @@ h1 { margin-bottom: 8px; font-family: 'Manrope', 'Gowun Dodum', sans-serif; font
 .work-area { min-width: 0; }
 .work-meta { display: flex; align-items: center; justify-content: space-between; margin: 0 2px 10px; }
 .problem-type { padding: 5px 9px; border-radius: 5px; background: #e8efe6; color: #52745a; font-size: 10px; font-weight: 700; }
+.problem-sequence { color: #71806f; font-size: 10px; font-weight: 700; letter-spacing: .04em; }
 .step-counter { color: #969990; font-size: 10px; font-variant-numeric: tabular-nums; }
 .problem-card { padding: clamp(21px, 2.5vw, 31px); }
 .problem-topline { display: flex; align-items: center; justify-content: space-between; }
@@ -94,12 +95,14 @@ h1 { margin-bottom: 8px; font-family: 'Manrope', 'Gowun Dodum', sans-serif; font
 .division-body { position: relative; padding-top: 34px; }
 .division-quotient-row { position: absolute; top: 0; left: 0; }
 .quotient-caption { position: absolute; top: 7px; left: -36px; color: #92988e; font-size: 9px; }
-.division-quotient, .division-dividend { display: grid; grid-template-columns: repeat(3, 38px); gap: 8px; padding-left: 13px; }
-.quotient-digit { display: grid; width: 38px; height: 27px; place-items: center; border-bottom: 1px solid #c9cec4; color: #385b40; font-family: 'Manrope', sans-serif; font-size: 17px; font-weight: 600; transition: background .18s, color .18s; }
+.division-quotient, .division-dividend { display: grid; grid-template-columns: repeat(3, 42px); gap: 8px; padding-left: 13px; }
+.quotient-digit { display: grid; width: 42px; height: 38px; place-items: center; padding: 0; border: 0; border-bottom: 1px solid #c9cec4; border-radius: 0; outline: none; background: transparent; color: #385b40; font-family: 'Manrope', sans-serif; font-size: 18px; font-weight: 600; text-align: center; transition: background .18s, color .18s; }
 .quotient-digit.current-place { border-bottom: 2px solid #719374; color: #426b4c; }
 .quotient-digit.empty { color: #aab2a5; font-size: 12px; }
+.quotient-digit:focus-visible { border-radius: 4px 4px 0 0; outline: 2px solid #86a88a; outline-offset: 1px; background: #f1f6ef; }
+.quotient-digit:disabled { color: #69796a; opacity: 1; -webkit-text-fill-color: #69796a; }
 .division-dividend-frame { border-top: 2px solid #596f5a; border-left: 2px solid #596f5a; border-radius: 12px 0 0; padding: 8px 12px 5px; }
-.division-digit { position: relative; display: grid; width: 38px; height: 34px; place-items: center; border-radius: 5px; background: #fff; box-shadow: inset 0 0 0 1px #e6e9e1; color: #344b39; font-family: 'Manrope', sans-serif; font-size: 22px; font-weight: 600; transition: background .2s, color .2s; }
+.division-digit { position: relative; display: grid; width: 42px; height: 36px; place-items: center; border-radius: 5px; background: #fff; box-shadow: inset 0 0 0 1px #e6e9e1; color: #344b39; font-family: 'Manrope', sans-serif; font-size: 22px; font-weight: 600; transition: background .2s, color .2s; }
 .division-digit.current-place { background: #eaf2e7; box-shadow: inset 0 0 0 1px #b9d0b7; }
 .division-digit.masked { color: transparent; }
 .division-digit.masked::after { position: absolute; inset: 0; border-radius: 5px; background: repeating-linear-gradient(135deg, #eeeee8, #eeeee8 5px, #e5e5de 5px, #e5e5de 7px); content: ''; }
@@ -123,6 +126,7 @@ h1 { margin-bottom: 8px; font-family: 'Manrope', 'Gowun Dodum', sans-serif; font
 @keyframes uncover-place { from { clip-path: inset(0 0 100% 0); opacity: .3; } to { clip-path: inset(0); opacity: 1; } }
 .answer-form { margin-top: 19px; }
 .answer-form label { display: block; margin-bottom: 7px; color: #62695f; font-size: 11px; font-weight: 600; }
+.answer-form .button-primary { width: 100%; }
 .answer-input-row { display: flex; gap: 9px; }
 .digit-input-wrap { position: relative; width: 100px; }
 .digit-input-wrap input { width: 100%; height: 43px; padding: 0 35px 0 14px; border: 1px solid #dedfd7; border-radius: 7px; outline: none; background: #fff; color: var(--ink); font-size: 18px; font-weight: 600; text-align: center; transition: border .18s, box-shadow .18s; }
@@ -343,9 +347,9 @@ tbody tr:last-child td { border-bottom: 0; }
   .problem-card { padding: 20px 17px; }
   .long-division { min-height: 128px; }
   .division-divisor { width: 25px; font-size: 24px; }
-  .division-quotient, .division-dividend { grid-template-columns: repeat(3, 34px); gap: 6px; }
-  .quotient-digit { width: 34px; }
-  .division-digit { width: 34px; height: 32px; font-size: 20px; }
+  .division-quotient, .division-dividend { grid-template-columns: repeat(3, 38px); gap: 6px; }
+  .quotient-digit { width: 38px; height: 36px; }
+  .division-digit { width: 38px; height: 34px; font-size: 20px; }
   .division-dividend-frame { padding-right: 9px; padding-left: 9px; }
   .direct-input-wrap { width: 120px; }
   .scratch-card { padding: 13px 14px 10px; }
