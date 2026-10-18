@@ -61,6 +61,9 @@ const state = {
   pendingHelpResult: false,
   toastTimer: null,
   resizeCanvas: null,
+  autoStepTimer: null,
+  advanceTimer: null,
+  transitioning: false,
 };
 
 const $ = (selector, root = document) => root.querySelector(selector);
@@ -436,6 +439,7 @@ function renderBlocksHelp(problem, value) {
 }
 
 function submitStep() {
+  if (state.transitioning) return;
   const problem = getProblem();
   const entered = state.stepEntry.trim();
   if (!/^[0-9]$/.test(entered)) {
@@ -489,6 +493,7 @@ function submitStep() {
 }
 
 function submitDirect() {
+  if (state.transitioning) return;
   const problem = getProblem();
   const entered = state.directDigits.join('').trim();
   if (!/^\d{3}$/.test(entered)) {
@@ -523,6 +528,7 @@ function submitDirect() {
 
 function submitAnswer(event) {
   event.preventDefault();
+  clearTimeout(state.autoStepTimer);
   answerFeedback.textContent = '';
   answerFeedback.classList.remove('error');
   if (state.directMode) submitDirect();
@@ -532,11 +538,23 @@ function submitAnswer(event) {
 function handleQuotientInput(event) {
   const input = event.target.closest('.quotient-digit');
   if (!input) return;
+  clearTimeout(state.autoStepTimer);
   const index = Number(input.dataset.quotientIndex);
   const value = input.value.replace(/[^0-9]/g, '').slice(0, 1);
   input.value = value;
-  if (state.directMode) state.directDigits[index] = value;
-  else if (index === state.stage) state.stepEntry = value;
+  if (state.transitioning) return;
+  if (state.directMode) {
+    state.directDigits[index] = value;
+    if (value && index < 2) $(`#quotientDigit${index + 1}`).focus();
+  } else if (index === state.stage) {
+    state.stepEntry = value;
+    if (value) {
+      const currentStage = state.stage;
+      state.autoStepTimer = setTimeout(() => {
+        if (!state.directMode && !state.transitioning && state.stage === currentStage && state.stepEntry === value) answerForm.requestSubmit();
+      }, 140);
+    }
+  }
   answerFeedback.textContent = '';
   answerFeedback.classList.remove('error');
 }
@@ -544,8 +562,30 @@ function handleQuotientInput(event) {
 function renderCompletedProblem() {
   const problemCard = $('.problem-card', studentView);
   const workArea = $('.work-area', studentView);
-  problemCard.hidden = true;
   const isLast = state.problemIndex === 2;
+  if (!isLast) {
+    state.transitioning = true;
+    answerFeedback.textContent = '잘했어요. 다음 문제로 넘어갈게요.';
+    $('#checkAnswerButton').disabled = true;
+    state.advanceTimer = setTimeout(() => {
+      state.problemIndex += 1;
+      state.stage = 0;
+      state.solvedDigits = [null, null, null];
+      state.directDigits = ['', '', ''];
+      state.stepEntry = '';
+      state.activeHelp = null;
+      state.modelSignature = '';
+      state.directMode = true;
+      state.transitioning = false;
+      clearWorkspaces();
+      renderProblem();
+      $('#checkAnswerButton').disabled = false;
+      const finalInput = $('#quotientDigit0');
+      if (finalInput) finalInput.focus();
+    }, 650);
+    return;
+  }
+  problemCard.hidden = true;
   let doneCard = $('#problemDone', workArea);
   if (!doneCard) {
     doneCard = document.createElement('section');
@@ -553,33 +593,7 @@ function renderCompletedProblem() {
     doneCard.className = 'complete-card card';
     workArea.append(doneCard);
   }
-  doneCard.innerHTML = `<span class="complete-seal" aria-hidden="true">${isLast ? '✓' : '↗'}</span><h2>${isLast ? '오늘의 연습을 마쳤어요' : '한 가지 유형을 마쳤어요'}</h2><p>${isLast ? '세 가지 유형을 모두 풀어봤어요. 도움을 고르고 다시 시도한 과정도 기록했어요.' : '잘했어요. 다음 문제도 지금처럼 한 자리씩 살펴봐요.'}</p><button class="button-primary" id="continuePractice" type="button">${isLast ? '처음부터 다시 연습하기' : '다음 유형으로 가기'} <span aria-hidden="true">↗</span></button>`;
-  $('#continuePractice').addEventListener('click', () => {
-    if (isLast) {
-      state.problems = TYPES.map((type) => ({ ...type, ...type.pool[Math.floor(Math.random() * type.pool.length)] }));
-      state.problemIndex = 0;
-      state.stage = 0;
-      state.solvedDigits = [null, null, null];
-      state.directDigits = ['', '', ''];
-      state.stepEntry = '';
-      state.activeHelp = null;
-      state.record = null;
-      state.pendingHelpResult = false;
-    } else {
-      state.problemIndex += 1;
-      state.stage = 0;
-      state.solvedDigits = [null, null, null];
-      state.directDigits = ['', '', ''];
-      state.stepEntry = '';
-      state.activeHelp = null;
-    }
-    state.directMode = true;
-    setInputMode(true);
-    problemCard.hidden = false;
-    doneCard.remove();
-    clearWorkspaces();
-    renderProblem();
-  });
+  doneCard.innerHTML = '<span class="complete-seal" aria-hidden="true">✓</span><h2>오늘의 연습을 마쳤어요</h2><p>세 가지 유형을 모두 풀어봤어요. 풀이 과정과 도움 기록을 확인할 수 있어요.</p>';
 }
 
 function getRecordView(record) {
@@ -725,7 +739,9 @@ function init() {
   $('#verticalQuotient').addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
       event.preventDefault();
-      answerForm.requestSubmit();
+      const index = Number(event.target.dataset.quotientIndex);
+      if (state.directMode && index < 2) $(`#quotientDigit${index + 1}`).focus();
+      else answerForm.requestSubmit();
     }
   });
   $('#toggleDirectMode').addEventListener('click', () => setInputMode(!state.directMode));
