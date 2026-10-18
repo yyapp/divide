@@ -138,21 +138,20 @@ h1 { margin-bottom: 8px; font-family: 'Manrope', 'Gowun Dodum', sans-serif; font
 .direct-input-wrap { width: 130px; }
 .text-button { display: inline-flex; align-items: center; gap: 5px; padding: 5px 0 5px 8px; border: 0; background: transparent; color: #848980; font-size: 10px; cursor: pointer; }
 .text-button svg { width: 16px; height: 16px; }
-#calculationSteps { position: absolute; z-index: 1; top: 115px; right: 0; left: 0; display: grid; height: 360px; grid-template-rows: repeat(3, 1fr); }
-#calculationSteps[hidden] { display: none; }
-.calculation-step { position: relative; min-height: 0; padding: 4px 0 5px; border-bottom: 1px dashed #dfe4dc; }
-.calc-step-title { margin: 0 0 2px 12px; color: #647461; font-size: 9px; }
-.calc-step-title span { margin-right: 6px; color: #9a9e94; font-size: 8px; }
-.calc-operation-row { position: relative; height: 27px; }
-.calc-operation-sign { position: absolute; top: 3px; left: calc(50% - 70px); width: 14px; color: #697669; font-size: 13px; text-align: center; }
+#calculationSteps { position: absolute; z-index: 1; top: 115px; right: 0; left: 0; height: 360px; }
+.process-row { position: relative; height: 32px; }
+.subtract-row { margin-top: 11px; }
+.remainder-row { margin-bottom: 18px; }
+.process-sign { position: absolute; top: 2px; left: calc(50% - 70px); width: 14px; color: #697669; font-size: 13px; text-align: center; }
 .calc-digit-grid { display: grid; grid-template-columns: repeat(3, 42px); gap: 8px; width: 142px; margin-left: calc(50% - 52px); }
-.calc-digit-value, .calc-digit-spacer, .calc-digit-input { display: grid; width: 42px; height: 25px; place-items: center; }
-.calc-digit-value { color: #435b46; font-family: 'Manrope', sans-serif; font-size: 15px; text-align: center; }
-.calc-digit-value.carry-empty { border-bottom: 1px dotted #aeb9ac; }
+.calc-digit-spacer, .calc-digit-input, .bring-down-cell { display: grid; width: 42px; height: 25px; place-items: center; }
+.bring-down-cell { grid-template-rows: 8px 17px; align-content: center; color: #435b46; font-family: 'Manrope', sans-serif; text-align: center; }
+.bring-down-cell span { color: #899586; font-family: 'DM Sans', sans-serif; font-size: 9px; line-height: 8px; }
+.bring-down-cell strong { font-size: 14px; font-weight: 500; line-height: 17px; }
 .calc-digit-input { padding: 0; border: 0; border-bottom: 1px solid #b8c3b6; border-radius: 0; outline: none; background: transparent; color: #385b40; font-family: 'Manrope', sans-serif; font-size: 14px; text-align: center; }
 .calc-digit-input:focus { border-bottom: 2px solid #719374; background: rgba(245, 249, 242, .85); }
-.calc-remainder-row .calc-digit-input { border: 1px solid #dfe4dc; border-radius: 4px; background: #fffefa; }
-#scratchCanvas { position: absolute; z-index: 2; inset: 0; display: block; width: 100%; height: 100%; border: 0; background: transparent; cursor: crosshair; touch-action: none; }
+.remainder-row .calc-digit-input { border: 1px solid #dfe4dc; border-radius: 4px; background: #fffefa; }
+#scratchCanvas { position: absolute; z-index: 5; inset: 0; display: block; width: 100%; height: 100%; border: 0; background: transparent; cursor: crosshair; touch-action: none; }
 #scratchCanvas[hidden] { display: none; }
 .division-board.numeric-work-mode::before { display: none; }
 .scratch-foot { display: flex; justify-content: space-between; margin-top: 7px; color: #a0a39a; font-size: 9px; }
@@ -352,8 +351,8 @@ tbody tr:last-child td { border-bottom: 0; }
   .scratch-head { align-items: flex-start; flex-wrap: wrap; }
   .workspace-controls { width: 100%; justify-content: space-between; }
   .calc-digit-grid { width: 126px; margin-left: calc(50% - 44px); grid-template-columns: repeat(3, 38px); gap: 6px; }
-  .calc-digit-value, .calc-digit-spacer, .calc-digit-input { width: 38px; }
-  .calc-operation-sign { left: calc(50% - 64px); }
+  .calc-digit-spacer, .calc-digit-input, .bring-down-cell { width: 38px; }
+  .process-sign { left: calc(50% - 64px); }
   .help-panel { grid-column: 1; grid-row: auto; padding: 18px 15px 13px; }
   .help-content { min-height: 180px; }
   .help-tabs { grid-template-columns: repeat(3, 1fr); }
